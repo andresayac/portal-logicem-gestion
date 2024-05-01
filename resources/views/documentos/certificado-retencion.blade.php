@@ -17,7 +17,7 @@
                         <div class='col-6'>
                             <div class="form-group">
                                 <label>Año de certificado <code>*</code></label>
-                                <input required type="number" min='2005' max='2023' class="form-control"
+                                <input required type="number" min='2005' class="form-control"
                                     id="year_certificate" name="<h1>Certificado de retenciones</h1>">
                             </div>
                         </div>
@@ -280,6 +280,9 @@
                 });
                 return blob;
             }
+
+            // init year_certificate max year current - 1
+            $('#year_certificate').attr('max', new Date().getFullYear() - 1);
         </script>
     @endPushOnce
 
