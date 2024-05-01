@@ -45,6 +45,6 @@ ADMIN_PORTAL_PASSWORD="admin"
 
 ```
 7. Migrar tablas necesarias para la aplicación `php artisan migrate`
-8. ingresar a la URL de la aplicación
+8. Ingresar a la URL de la aplicación
 
 
