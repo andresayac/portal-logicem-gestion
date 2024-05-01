@@ -64,14 +64,12 @@ class AuthenticatedSessionController extends Controller
 
                     // GENERATE OTP
                     $otp = rand(100000, 999999);
-                    // SEND OTP MAIL
-                    // $this->sendOtpMail($response_sap['value'][0]['EmailAddress'], $otp);
                     // SaVE OTP IN SESSION
                     $request->session()->put('otp', $otp);
 
                     sendOtpToUser::dispatch([
                         'name' => $response_sap['value'][0]['CardName'],
-                        'email' => 'andresayac@gmail.com' ?? $response_sap['value'][0]['EmailAddress'],
+                        'email' => $response_sap['value'][0]['EmailAddress'],
                         'title' => $otp . ' - Es su código de verificación OTP',
                         'otp' => $otp,
                         'username' => $response_sap['value'][0]['CardCode'],
