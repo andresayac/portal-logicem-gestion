@@ -241,16 +241,16 @@
 
 
             var dt_invoices = $('#table-invoices').DataTable({
-                // language: {
-                //     url: "http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json",
-                //     select: {
-                //         rows: {
-                //             '_': ' %d registros seleccionados',
-                //             '0': '',
-                //             '1': ' %d registro seleccionado'
-                //         }
-                //     }
-                // },
+                language: {
+                    url: "http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json",
+                    select: {
+                        rows: {
+                            '_': ' %d registros seleccionados',
+                            '0': '',
+                            '1': ' %d registro seleccionado'
+                        }
+                    }
+                },
                 // select: {
                 //     style: 'multi',
                 // },
