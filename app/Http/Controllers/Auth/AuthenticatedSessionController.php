@@ -69,15 +69,14 @@ class AuthenticatedSessionController extends Controller
                     // SaVE OTP IN SESSION
                     $request->session()->put('otp', $otp);
 
-                    // sendOtpToUser::dispatch([
-                    //     'name' => $response_sap['value'][0]['CardName'],
-                    //     'email' => 'andresayac@gmail.com' ?? $response_sap['value'][0]['EmailAddress'],
-                    //     'title' => $otp . ' - Es su código de verificación OTP',
-                    //     'otp' => $otp,
-                    //     'username' => $response_sap['value'][0]['CardCode'],
-                    //     'message' => 'Recibimos una solicitud de inicio de sesión. Ingresa el siguiente código para permitir el acceso: ' . $otp
-                    // ]);
-
+                    sendOtpToUser::dispatch([
+                        'name' => $response_sap['value'][0]['CardName'],
+                        'email' => 'andresayac@gmail.com' ?? $response_sap['value'][0]['EmailAddress'],
+                        'title' => $otp . ' - Es su código de verificación OTP',
+                        'otp' => $otp,
+                        'username' => $response_sap['value'][0]['CardCode'],
+                        'message' => 'Recibimos una solicitud de inicio de sesión. Ingresa el siguiente código para permitir el acceso: ' . $otp
+                    ]);
 
                     // SAve data in session
                     $request->session()->put('data_sap', $response_sap['value'][0]);

@@ -67,7 +67,7 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="otp">OTP: @php echo $otp; @endphp</label>
+                        <label for="otp">OTP: </label>
                         <input id="otp" type="text" name="otp" required class="form-control"
                             tabindex="2">
                         @error('otp')
