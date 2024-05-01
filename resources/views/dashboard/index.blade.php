@@ -10,7 +10,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    Bienvenido
+                    Bienvenido <b>@if (Auth::user()) {{ Auth::user()->name }} @endif </b>
                 </div>
             </div>
         </div>

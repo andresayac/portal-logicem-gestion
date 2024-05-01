@@ -15,11 +15,11 @@
 
 
     <div class="row">
-        <div class="col-4">
+        <div class="col-6">
             <div class="card">
                 <div class="card-body text-center">
                     <span>Código de respuesta </span>
-                    @if ($log->response_code == 201)
+                    @if ($log->response_code == 200)
                         <span class="badge badge-success">{{ $log->response_code }}</span>
                     @else
                         <span class="badge badge-danger">{{ $log->response_code ?? 'Api Error' }}</span>
@@ -27,17 +27,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-6">
             <div class="card">
                 <div class="card-body text-center">
                     <span>Enviado el {{ $log->created_at }} </span>
-                </div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-body text-center remesas-card">
-                    <span>Remesas {{ implode(', ', $log->remesas) }} </span>
                 </div>
             </div>
         </div>

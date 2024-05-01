@@ -184,5 +184,21 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
+    'sap' => [
+        'sap_host' => env('SAP_URL_WITH_PORT', ''),
+        'sap_company_db' => env('SAP_COMPANY_DB', ''),
+        'sap_user' => env('SAP_USER', ''),
+        'sap_password' => env('SAP_PASSWORD', ''),
+        'sap_language' => env('SAP_LANGUAGE', ''),
+        'sap_pdf_endpoint' => env('SAP_PDF_ENDPOINT', ''),
+        'sap_pdf_company_db' => env('SAP_PDF_COMPANY_DB', ''),
+        'sap_pdf_user' => env('SAP_PDF_USER', ''),
+        'sap_pdf_password' => env('SAP_PDF_PASSWORD', ''),
+        'sap_pdf_db_instance' => env('SAP_PDF_DB_INSTANCE', ''),
+    ],
+    'portal' => [
+        'user_admin' => env('ADMIN_PORTAL_USER', 'ADMINISTRADOR'),
+        'password_admin' =>  env('ADMIN_PORTAL_PASSWORD', 'ADMINISTRADOR'),
+    ]
 
 ];

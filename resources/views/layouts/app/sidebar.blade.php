@@ -19,26 +19,37 @@
 
             <li class="menu-header">Menú</li>
 
-            <li class="<?= request()->routeIs('inicio') ? 'active' : '' ?>"><a class="nav-link" href="{{ route('inicio') }}"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+            <li class="<?= request()->routeIs('inicio') ? 'active' : '' ?>"><a class="nav-link"
+                    href="{{ route('inicio') }}"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
 
-            <li class="dropdown <?= request()->routeIs('provisiones*') ? 'active' : '' ?>">
-                <a href="#" class="nav-link has-dropdown"><i class="fas fa-stream"></i>
-                    <span>Provisiones</span></a>
-                <ul class="dropdown-menu">
-                    <li class="<?= request()->routeIs('provisiones') ? 'active' : '' ?>"><a class="nav-link" href="{{ route('provisiones') }}"><i class="fas fa-stream mr-1"></i>Provisiones</a></li>
-                    <li class="<?= request()->routeIs('provisiones.log*') ? 'active' : '' ?>"><a class="nav-link" href="{{ route('provisiones.log') }}"><i class="fas fa-file mr-1"></i>Log</a></li>
-                </ul>
-            </li>
-
-            <li class="dropdown <?= request()->routeIs('asistente*') ? 'active' : '' ?>">
-                <a href="#" class="nav-link has-dropdown"><i class="fas fa-passport"></i>
-                    <span>Asistente</span></a>
-                <ul class="dropdown-menu">
-                    <li class="<?= request()->routeIs('asistente') ? 'active' : '' ?>"><a class="nav-link" href="{{ route('asistente') }}"><i class="fas fa-passport mr-1"></i>Asistente</a></li>
-                    <li class="<?= request()->routeIs('asistente.log*') ? 'active' : '' ?>"><a class="nav-link" href="{{ route('asistente.log') }}"><i class="fas fa-file mr-1"></i>Log</a></li>
-                </ul>
-            </li>
-
+            @if (session('is_admin'))
+                <li class="<?= request()->routeIs('logs') ? 'active' : '' ?>">
+                    <a class="nav-link" href="{{ route('logs') }}"><i class="far fa-file-alt"></i>
+                        <span>Logs</span></a>
+                </li>
+            @else
+                <li class="dropdown <?= request()->routeIs('documentos*') ? 'active' : '' ?>">
+                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-stream"></i>
+                        <span>Documentos</span></a>
+                    <ul class="dropdown-menu">
+                        <li class="<?= request()->routeIs('documentos.certificado-retenciones') ? 'active' : '' ?>">
+                            <a class="nav-link" href="{{ route('documentos.certificado-retenciones') }}">
+                                <i class="fas fa-stream mr-1"></i>Certificado Retenciones
+                            </a>
+                        </li>
+                        <li class="<?= request()->routeIs('documentos.facturas-registradas') ? 'active' : '' ?>">
+                            <a class="nav-link" href="{{ route('documentos.facturas-registradas') }}">
+                                <i class="fas fa-stream mr-1"></i>Facturas registradas
+                            </a>
+                        </li>
+                        <li class="<?= request()->routeIs('documentos.pagos-efectuados') ? 'active' : '' ?>">
+                            <a class="nav-link" href="{{ route('documentos.pagos-efectuados') }}">
+                                <i class="fas fa-stream mr-1"></i>Pagos efectuados
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
         </ul>
     </aside>
 </div>

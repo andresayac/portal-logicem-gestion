@@ -8,6 +8,12 @@
     </div>
     <?php endif ?>
 
+    @if ($errors->has('error'))
+        @foreach ($errors->get('error') as $error)
+            <div class="alert alert-danger mt-2">{{ $error }}</div>
+        @endforeach
+    @endif
+
     <div class="login-brand mb-1">
         <img src="{{ asset('images/logoF.png') }}" alt="logo" width="250" class="">
     </div>
@@ -23,29 +29,18 @@
             </h4>
         </div>
 
-        <div class="card-body">
 
-            <form method="POST" id="form-login" action="{{ route('login') }}">
+
+        <div class="card-body">
+            <form method="POST" id="form-login" action="{{ route('otp') }}">
                 @csrf
 
                 <div class="form-group">
-                    <label for="email">Usuario</label>
-                    <input id="email" type="text" name="username" value="{{ old('username') }}" required
-                        autofocus class="form-control" tabindex="1">
-                    <?php if ($errors->has('username')) : ?>
-                    @foreach ($errors->get('username') as $error)
-                        <div class="alert alert-danger mt-2">{{ $error }}</div>
-                    @endforeach
-                    <?php endif ?>
-                </div>
-
-                <div class="form-group">
-                    <div class="d-block">
-                        <label for="password" class="control-label">Contraseña</label>
-                    </div>
-                    <input id="password" type="password" name="password" class="form-control" tabindex="2" required>
-                    <?php if ($errors->has('password')) : ?>
-                    @foreach ($errors->get('password') as $error)
+                    <label for="text">NIT</label>
+                    <input id="email" type="text" name="nit" value="{{ old('nit') }}"
+                        required autofocus class="form-control" tabindex="1">
+                    <?php if ($errors->has('nit')) : ?>
+                    @foreach ($errors->get('nit') as $error)
                         <div class="alert alert-danger mt-2">{{ $error }}</div>
                     @endforeach
                     <?php endif ?>
@@ -53,7 +48,7 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                        Iniciar sesión
+                        GENERAR OTP
                     </button>
                 </div>
             </form>

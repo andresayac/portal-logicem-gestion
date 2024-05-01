@@ -5,6 +5,8 @@ use App\Http\Controllers\InicioController;
 use App\Http\Controllers\ProvisionesController;
 use App\Http\Controllers\AsistenteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PortalController;
+use App\Http\Controllers\LogsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,20 +26,24 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inicio', [InicioController::class, 'index'])->name('inicio');
 
-    Route::get('/provisiones', [ProvisionesController::class, 'index'])->name('provisiones');
-    Route::get('/provisiones/log', [ProvisionesController::class, 'log'])->name('provisiones.log');
-    Route::get('/provisiones/log/{log}', [ProvisionesController::class, 'logDetails'])->name('provisiones.log.details');
-    Route::get('/provisiones/log/{log}/remesas', [ProvisionesController::class, 'logRemesas'])->name('provisiones.log.remesas');
-    Route::get('/provisiones/clientes', [ProvisionesController::class, 'getClientes'])->name('provisiones.clientes');
-    Route::get('/provisiones/getProvisiones', [ProvisionesController::class, 'getProvisiones'])->name('provisiones.getProvisiones');
-    Route::post('/provisiones/sendProvisiones', [ProvisionesController::class, 'sendProvisiones'])->name('provisiones.sendProvisiones');
 
-    Route::get('/asistente', [AsistenteController::class, 'index'])->name('asistente');
-    Route::get('/asistente/proveedores', [AsistenteController::class, 'proveedores'])->name('asistente.proveedores');
-    Route::get('/asistente/manifiestos', [AsistenteController::class, 'manifiestos'])->name('asistente.manifiestos');
-    Route::post('/asistente/sendManifiestos', [AsistenteController::class, 'sendManifiestos'])->name('asistente.sendManifiestos');
-    Route::get('/asistente/log', [AsistenteController::class, 'log'])->name('asistente.log');
-    Route::get('/asistente/log/{log}', [AsistenteController::class, 'logDetails'])->name('asistente.log.details');
+    // CertifcadoRetencion
+    Route::get('/documentos/certificado-retenciones', [PortalController::class, 'certificadoRetencion'])->name('documentos.certificado-retenciones');
+    Route::get('/documentos/certificado-retenciones/pdf', [PortalController::class, 'certificadoRetencionPdf'])->name('documentos.certificado-retenciones-pdf');
+
+    // documentos.facturas-registrada
+    Route::get('/documentos/facturas-registradas', [PortalController::class, 'facturasRegistradas'])->name('documentos.facturas-registradas');
+    Route::get('/documentos/facturas-registradas/json', [PortalController::class, 'facturasRegistradasJson'])->name('documentos.facturas-registradas-json');
+
+
+    // documentos  pagos efectuados
+    Route::get('/documentos/pagos-efectuados', [PortalController::class, 'pagosEfectuados'])->name('documentos.pagos-efectuados');
+    Route::get('/documentos/pagos-efectuados/json', [PortalController::class, 'pagosEfectuadosJson'])->name('documentos.pagos-efectuados-json');
+
+    // logs
+    Route::get('/logs', [LogsController::class, 'index'])->name('logs');
+    Route::get('/logs/{log}', [LogsController::class, 'details'])->name('logs.details');
+
 });
 
 Route::middleware('auth')->group(function () {
