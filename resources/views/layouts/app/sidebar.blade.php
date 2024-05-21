@@ -22,10 +22,14 @@
             <li class="<?= request()->routeIs('inicio') ? 'active' : '' ?>"><a class="nav-link"
                     href="{{ route('inicio') }}"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
 
-            @if (session('is_admin'))
+            @if (auth()->user()->is_admin)
                 <li class="<?= request()->routeIs('logs') ? 'active' : '' ?>">
                     <a class="nav-link" href="{{ route('logs') }}"><i class="far fa-file-alt"></i>
                         <span>Logs</span></a>
+                </li>
+                <li class="<?= request()->routeIs('users.index') ? 'active' : '' ?>">
+                    <a class="nav-link" href="{{ route('users.index') }}"><i class="fas fa-users"></i>
+                        <span>Usuarios</span></a>
                 </li>
             @else
                 <li class="dropdown <?= request()->routeIs('documentos*') ? 'active' : '' ?>">

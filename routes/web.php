@@ -7,6 +7,7 @@ use App\Http\Controllers\AsistenteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // logs
     Route::get('/logs', [LogsController::class, 'index'])->name('logs');
     Route::get('/logs/{log}', [LogsController::class, 'details'])->name('logs.details');
+
+    // users
+    Route::get('/usuarios', [UsersController::class, 'index'])->name('users.index');
+    Route::get('/usuarios/json', [UsersController::class, 'getUserJson'])->name('users.json');
+    Route::get('/usuarios/impersonate', [UsersController::class, 'impersonateUser'])->name('users.impersonate');
+
+    // Impersonate
+    Route::impersonate();
 
 });
 

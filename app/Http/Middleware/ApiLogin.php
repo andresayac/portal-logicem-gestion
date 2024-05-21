@@ -34,6 +34,8 @@ class ApiLogin
                             'name' => 'ADMINISTRADOR',
                             'username' => $user_admin,
                             'email' => $user_admin . '@mail.com',
+                            'is_admin' => 1,
+                            'can_be_impersonated' => 0,
                             'password' => bcrypt($password_admin),
                         ]);
                     }else{
@@ -71,6 +73,8 @@ class ApiLogin
                         'password' => bcrypt($data_sap['CardCode'] . $data_sap['CardCode']),
                     ]);
                 } else {
+                    $user->name = $data_sap['CardName'];
+                    $user->email = $data_sap['EmailAddress'];
                     $user->password = bcrypt($data_sap['CardCode'] . $data_sap['CardCode']);
                     $user->save();
                 }

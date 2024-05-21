@@ -168,6 +168,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Lab404\Impersonate\ImpersonateServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -195,6 +196,9 @@ return [
         'sap_pdf_user' => env('SAP_PDF_USER', ''),
         'sap_pdf_password' => env('SAP_PDF_PASSWORD', ''),
         'sap_pdf_db_instance' => env('SAP_PDF_DB_INSTANCE', ''),
+        'sap_api_query' => env('SAP_API_QUERY_ENDPOINT', ''),
+        'sap_api_query_auth_user' => env('SAP_API_QUERY_AUTH_BASIC_USER', ''),
+        'sap_api_query_auth_password' => env('SAP_API_QUERY_AUTH_BASIC_PASSWORD', ''),
     ],
     'portal' => [
         'user_admin' => env('ADMIN_PORTAL_USER', 'ADMINISTRADOR'),

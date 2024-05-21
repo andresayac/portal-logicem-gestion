@@ -31,6 +31,9 @@ trait SapApi
             'SAP_PDF_PASSWORD' => config('app.sap.sap_pdf_password'),
             'SAP_PDF_DB_INSTANCE' => config('app.sap.sap_pdf_db_instance'),
             'SAP_PDF_ENDPOINT' => config('app.sap.sap_pdf_endpoint'),
+            'SAP_API_QUERY_ENDPOINT' => config('app.sap.sap_api_query'),
+            'SAP_API_QUERY_AUTH_BASIC_USER' => config('app.sap.sap_api_query_auth_user'),
+            'SAP_API_QUERY_AUTH_BASIC_PASSWORD' => config('app.sap.sap_api_query_auth_password'),
         ];
     }
 
@@ -87,19 +90,22 @@ trait SapApi
         return $response->json();
     }
 
-    protected function getPreSettlements($CardCode, $DocDateInitial, $DocDateEnd, $skip = 0)
+    protected function getPreSettlements($CardCode)
     {
-        $url = $this->settingsSap['SAP_URL_WITH_PORT'] . "/b1s/v1/PurchaseInvoices?\$select=DocNum,DocDate,DocDueDate,VatSum,WTAmount,DocTotal,PaidToDate,DocCurrency&\$filter=CardCode eq '$CardCode' and DocDate ge '$DocDateInitial' and DocDate le '$DocDateEnd'&\$orderby=DocDate asc&\$skip=$skip";
+        $this->settingsSap = $this->getSapSettings();
 
-        $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap])->get($url);
+        $url = $this->settingsSap['SAP_API_QUERY_ENDPOINT'] . "/select";
+        $body = [
+            "script" => "select * from \"_SYS_BIC\".\"Logicem/PRELIQUIDACION_MANIFIESTO\" where \"CodTenedor\" = '{$CardCode}' and \"Facturador\"='SI';",
+            "motor" => "HANA"
+        ];
+
+        $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap, 'Content-Type' => 'application/json'])->withBasicAuth($this->settingsSap['SAP_API_QUERY_AUTH_BASIC_USER'], $this->settingsSap['SAP_API_QUERY_AUTH_BASIC_PASSWORD'])->post($url, $body);
         DocumentsLog::create([
             'user_id' => auth()->user()->id,
             'document_type' => 'pre-settlements',
             'request_body' => json_encode([
-                'CardCode' => $CardCode,
-                'DocDateInitial' => $DocDateInitial,
-                'DocDateEnd' => $DocDateEnd,
-                'skip' => $skip
+                'CardCode' => $CardCode
             ]),
             'response_body' => json_encode($response->json()),
             'response_code' => $response->status(),
@@ -129,6 +135,20 @@ trait SapApi
 
         // Eliminar el último ';' de la cadena de cookies
         $this->cookiesSapPdf = rtrim($cookieString, '; ');
+        return $response->json();
+    }
+
+    protected function getAllUserProvider()
+    {
+        $this->settingsSap = $this->getSapSettings();
+
+        $url = $this->settingsSap['SAP_API_QUERY_ENDPOINT'] . "/select";
+        $body = [
+            "script" => "select \"CardCode\", \"CardName\", \"E_Mail\", \"Cellular\" from \"LOGICEM\".\"OCRD\" where \"CardType\" = 'S' and \"frozenFor\"='N';",
+            "motor" => "HANA"
+        ];
+
+        $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap, 'Content-Type' => 'application/json'])->withBasicAuth($this->settingsSap['SAP_API_QUERY_AUTH_BASIC_USER'], $this->settingsSap['SAP_API_QUERY_AUTH_BASIC_PASSWORD'])->post($url, $body);
         return $response->json();
     }
 
