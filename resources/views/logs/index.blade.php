@@ -2,7 +2,7 @@
 
     <x-slot name="header">
         <div class="section-header">
-            <h1>Provisiones Log</h1>
+            <h1>Autogestion Log</h1>
         </div>
     </x-slot>
 
@@ -10,7 +10,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header pb-1" style="min-height: unset;">
-                    <h4>Log de provisiones enviadas</h4>
+                    <h4>Logs</h4>
                 </div>
                 <div class="card-body">
 
