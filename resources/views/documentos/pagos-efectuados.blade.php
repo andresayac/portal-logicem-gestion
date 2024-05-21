@@ -46,7 +46,7 @@
         <div class="col-md-12 col-lg-12 col-sm-12" id="show-pdf">
             <div class="card">
                 <div class="card-header">
-                    <h4>Facturas Registradas</h4>
+                    <h4>Pagos Efectuados</h4>
                 </div>
                 <div class="card-body pt-1">
                     <div class="table-responsive">

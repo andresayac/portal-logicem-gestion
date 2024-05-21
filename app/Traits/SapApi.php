@@ -147,13 +147,13 @@ trait SapApi
                 'yearCertificate' => $yearCertificate,
                 'typeCertificate' => $typeCertificate
             ]),
-            'response_body' => json_encode($response->json()),
+            'response_body' => json_encode($response->body()),
             'response_message' => $response->status(),
             'response_code' => $response->status(),
             'url' => $url,
-            'response' => json_encode($response->json())
+            'response' => json_encode($response->body())
         ]);
-        return $response->json();
+        return $response->body();
     }
 
     protected function logoutPdf()
@@ -169,5 +169,15 @@ trait SapApi
         $email_parts = explode("@", $email);
         $email_parts[0] = substr($email_parts[0], 0, 3) . str_repeat("*", strlen($email_parts[0]) - 3);
         return implode("@", $email_parts);
+    }
+
+    protected function obscureMobile($mobile)
+    {
+        // Asegurarse de que el número de móvil tiene al menos dos caracteres para evitar errores
+        if (strlen($mobile) < 2) {
+            return $mobile;
+        }
+
+        return substr($mobile, 0, 2) . str_repeat("*", strlen($mobile) - 4) . substr($mobile, -3);
     }
 }

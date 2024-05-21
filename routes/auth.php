@@ -17,6 +17,10 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
+    Route::get('check', [AuthenticatedSessionController::class, 'check'])
+                ->name('check');
+
+    Route::post('check', [AuthenticatedSessionController::class, 'checkAuth']);
 
     Route::get('otp', [AuthenticatedSessionController::class, 'otp'])
                 ->name('otp');

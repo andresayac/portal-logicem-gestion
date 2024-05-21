@@ -29,15 +29,13 @@
             </h4>
         </div>
 
-
-
         <div class="card-body">
-            <form method="POST" id="form-login" action="{{ route('otp') }}">
+            <form method="POST" id="form-login" action="{{ route('check') }}">
                 @csrf
 
                 <div class="form-group">
                     <label for="text">NIT</label>
-                    <input id="email" type="text" name="nit" value="{{ old('nit') }}"
+                    <input id="email" type="text" name="nit" value="{{ old('nit') ?? '901643748-8' }}"
                         required autofocus class="form-control" tabindex="1">
                     <?php if ($errors->has('nit')) : ?>
                     @foreach ($errors->get('nit') as $error)
@@ -48,7 +46,7 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                        GENERAR OTP
+                        Continuar
                     </button>
                 </div>
             </form>

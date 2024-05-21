@@ -11,7 +11,11 @@
 
     @if (!$is_admin)
         @if ('success')
-            <div class="alert alert-success mt-2">OTP enviado verifica tu bandera de entrada o el SPAM.</div>
+            @if ($method === 'email')
+                <div class="alert alert-success mt-2">OTP enviado verifica tu correo electrónico o el SPAM.</div>
+            @elseif ($method === 'sms')
+                <div class="alert alert-success mt-2">OTP enviado verifica tu celular.</div>
+            @endif
         @else
             <div class="alert alert-danger mt-2">Error al enviar el OTP</div>
         @endif
@@ -40,7 +44,7 @@
                 @csrf
 
 
-                @if($is_admin)
+                @if ($is_admin)
                     <div class="form-group">
                         <label for="nit">Usuario</label>
                         <input id="nit" type="text" name="nit" value="{{ $nit }}" required
@@ -49,7 +53,7 @@
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mt-2">
                         <label for="password">Contraseña</label>
                         <input id="password" type="password" name="password" required class="form-control"
                             tabindex="2">
@@ -57,7 +61,7 @@
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
-                @else
+                @elseif ($method === 'email')
                     <div class="form-group">
                         <label for="email">Correo Electrónico</label>
                         <input id="email" type="email" name="email" value="{{ $email }}" required
@@ -66,14 +70,30 @@
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="form-group">
-                        <label for="otp">OTP: </label>
+                    <div class="form-group mt-2">
+                        <label for="otp">OTP: {{ $otp }}</label>
                         <input id="otp" type="text" name="otp" required class="form-control"
                             tabindex="2">
                         @error('otp')
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
+                @elseif ($method === 'sms')
+                    <div class="form-group">
+                        <label for="mobile">Celular</label>
+                        <input id="mobile" type="text" name="mobile" value="{{ $mobile }}" required
+                            autofocus class="form-control" tabindex="1" disabled readonly>
+                        @error('mobile')
+                            <div class="alert alert-danger mt-2">{{ $message }}</div>
+                        @enderror
+                        <div class="form-group mt-2">
+                            <label for="otp">OTP: {{ $otp }}</label>
+                            <input id="otp" type="text" name="otp" required class="form-control"
+                                tabindex="2">
+                            @error('otp')
+                                <div class="alert alert-danger mt-2">{{ $message }}</div>
+                            @enderror
+                        </div>
                 @endif
 
                 <div class="form-group">

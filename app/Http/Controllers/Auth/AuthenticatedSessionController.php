@@ -42,63 +42,86 @@ class AuthenticatedSessionController extends Controller
     {
         try {
 
-            if ($request->nit == config('app.portal.user_admin')) {
-                // set session is admin
-                $request->session()->put('is_admin', true);
+            // dd($request->all(), $request->session()->all());
 
-                return view('auth.otp', [
-                    'nit' => $request->nit,
-                    'email' => '',
-                    'data' => '',
-                    'success' => true,
-                    'otp' => '',
-                    'is_admin' => true
-                ]);
-            }
+            $data_sap = $request->session()->get('data_sap');
+            $method = $request->get('method');
+            $email_address_confirm = $request->get('email_address_confirm');
+            $cellular_confirm = $request->get('cellular_confirm');
 
-            $this->login();
-            $response_sap = $this->getCustomerByNit($request->nit);
+            if (!empty($data_sap)) {
+                $email_sap = $data_sap['EmailAddress'];
+                $cellular_sap = $data_sap['Cellular'];
 
-            if (isset($response_sap['value'])) {
-                if (count($response_sap['value']) > 0) {
+                if ($method == 'email') {
+                    if ($email_sap == $email_address_confirm) {
+                        // GENERATE OTP
+                        $otp = rand(100000, 999999);
+                        // SaVE OTP IN SESSION
+                        $request->session()->put('otp', $otp);
 
-                    // GENERATE OTP
-                    $otp = rand(100000, 999999);
-                    // SaVE OTP IN SESSION
-                    $request->session()->put('otp', $otp);
+                        sendOtpToUser::dispatch([
+                            'name' => $data_sap['CardName'],
+                            'email' => $data_sap['EmailAddress'],
+                            'title' => $otp . ' - Es su código de verificación OTP',
+                            'otp' => $otp,
+                            'username' => $data_sap['CardCode'],
+                            'message' => 'Recibimos una solicitud de inicio de sesión. Ingresa el siguiente código para permitir el acceso: ' . $otp
+                        ]);
 
-                    sendOtpToUser::dispatch([
-                        'name' => $response_sap['value'][0]['CardName'],
-                        'email' => $response_sap['value'][0]['EmailAddress'],
-                        'title' => $otp . ' - Es su código de verificación OTP',
-                        'otp' => $otp,
-                        'username' => $response_sap['value'][0]['CardCode'],
-                        'message' => 'Recibimos una solicitud de inicio de sesión. Ingresa el siguiente código para permitir el acceso: ' . $otp
-                    ]);
+                        return view('auth.otp', [
+                            'nit' => $request->nit,
+                            'email' => $this->obscureEmail($data_sap['EmailAddress']),
+                            'mobile' => $this->obscureMobile($data_sap['Cellular']),
+                            'data' => $data_sap,
+                            'success' => true,
+                            'otp' => $otp,
+                            'is_admin' => false,
+                            'method' => 'email'
+                        ]);
+                    } else {
+                        return redirect()->route('login')->withErrors([
+                            'error' => 'El correo electrónico no coincide con el registrado en nuestros registros.',
+                        ]);
+                    }
+                } elseif ($method == 'sms') {
+                    if ($cellular_sap == $cellular_confirm) {
+                        // GENERATE OTP
+                        $otp = rand(100000, 999999);
+                        // SaVE OTP IN SESSION
+                        $request->session()->put('otp', $otp);
 
-                    // SAve data in session
-                    $request->session()->put('data_sap', $response_sap['value'][0]);
+                        sendOtpToUser::dispatch([
+                            'name' => $data_sap['CardName'],
+                            'email' => $data_sap['EmailAddress'],
+                            'title' => $otp . ' - Es su código de verificación OTP',
+                            'otp' => $otp,
+                            'username' => $data_sap['CardCode'],
+                            'message' => 'Recibimos una solicitud de inicio de sesión. Ingresa el siguiente código para permitir el acceso: ' . $otp
+                        ]);
 
-
-                    return view('auth.otp', [
-                        'nit' => $request->nit,
-                        'email' => $this->obscureEmail($response_sap['value'][0]['EmailAddress']),
-                        'data' => $response_sap['value'][0],
-                        'success' => true,
-                        'otp' => $otp,
-                        'is_admin' => false,
-                    ]);
+                        return view('auth.otp', [
+                            'nit' => $request->nit,
+                            'email' => $this->obscureEmail($data_sap['EmailAddress']),
+                            'mobile' => $this->obscureMobile($data_sap['Cellular']),
+                            'data' => $data_sap,
+                            'success' => true,
+                            'otp' => $otp,
+                            'is_admin' => false,
+                            'method' => 'sms'
+                        ]);
+                    } else {
+                        return redirect()->route('login')->withErrors([
+                            'error' => 'El número de celular no coincide con el registrado en nuestros registros.',
+                        ]);
+                    }
                 }
             }
-            // redirect route login send error
-            // return  view('auth.otp', ['nit' => $request->nit, 'success' => false]);
 
             return redirect()->route('login')->withErrors([
                 'error' => 'El NIT no se encuentra registrado en nuestros registros.',
             ]);
         } catch (\Exception $e) {
-
-            dd($e->getMessage());
             return redirect()->route('login')->withErrors([
                 'error' => 'Error al conectarse a la API de inicio de sesión.',
             ]);
@@ -108,6 +131,55 @@ class AuthenticatedSessionController extends Controller
     public function otp(Request $request)
     {
         return view('auth.otp', ['nit' => '', 'success' => false, 'email' => '', 'data' => null, 'otp' => '', 'is_admin' => false]);
+    }
+
+    public function check(Request $request)
+    {
+
+        return view('auth.check', ['nit' => '', 'success' => false]);
+    }
+
+    public function checkAuth(Request $request)
+    {
+
+        if ($request->nit == config('app.portal.user_admin')) {
+            // set session is admin
+            $request->session()->put('is_admin', true);
+
+            return view('auth.otp', [
+                'nit' => $request->nit,
+                'email' => '',
+                'data' => '',
+                'success' => true,
+                'otp' => '',
+                'is_admin' => true
+            ]);
+        }
+
+
+        try {
+            $this->login();
+            $response_sap = $this->getCustomerByNit($request->nit);
+
+
+            if (isset($response_sap['value'])) {
+                if (count($response_sap['value']) > 0) {
+                    // save data in session
+                    $request->session()->put('data_sap', $response_sap['value'][0]);
+
+                    return view('auth.check', [
+                        'nit' => $request->nit,
+                        'success' => true,
+                        'card_name' => $response_sap['value'][0]['CardName'] ?? null,
+                        'email_address' =>  $this->obscureEmail($response_sap['value'][0]['EmailAddress']) ?? null,
+                        'cellular' => $this->obscureMobile($response_sap['value'][0]['Cellular']) ?? null,
+                    ]);
+                }
+            }
+            return view('auth.check', ['nit' => $request->nit, 'success' => false]);
+        } catch (\Exception $e) {
+            return view('auth.check', ['nit' => $request->nit, 'success' => false]);
+        }
     }
 
     /**
