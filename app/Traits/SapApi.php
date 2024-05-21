@@ -87,6 +87,26 @@ trait SapApi
         return $response->json();
     }
 
+    protected function getPreSettlements($CardCode, $DocDateInitial, $DocDateEnd, $skip = 0)
+    {
+        $url = $this->settingsSap['SAP_URL_WITH_PORT'] . "/b1s/v1/PurchaseInvoices?\$select=DocNum,DocDate,DocDueDate,VatSum,WTAmount,DocTotal,PaidToDate,DocCurrency&\$filter=CardCode eq '$CardCode' and DocDate ge '$DocDateInitial' and DocDate le '$DocDateEnd'&\$orderby=DocDate asc&\$skip=$skip";
+
+        $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap])->get($url);
+        DocumentsLog::create([
+            'user_id' => auth()->user()->id,
+            'document_type' => 'pre-settlements',
+            'request_body' => json_encode([
+                'CardCode' => $CardCode,
+                'DocDateInitial' => $DocDateInitial,
+                'DocDateEnd' => $DocDateEnd,
+                'skip' => $skip
+            ]),
+            'response_body' => json_encode($response->json()),
+            'response_code' => $response->status(),
+        ]);
+        return $response->json();
+    }
+
     protected function loginApiPdf()
     {
         $this->settingsSap = $this->getSapSettings();

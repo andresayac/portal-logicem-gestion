@@ -138,4 +138,49 @@ class PortalController extends Controller
             ]);
         }
     }
+
+    public function preliquidaciones()
+    {
+        return view('documentos.preliquidaciones');
+    }
+
+    public function preliquidacionesJson(Request $request)
+    {
+        $initial_date = $request->initial_date;
+        $final_date = $request->final_date;
+
+        if ($initial_date == null || $final_date == null) {
+            return response()->json([
+                'message' => 'Los campos fecha inicial y fecha final son requeridos'
+            ], 400);
+        }
+        try {
+            $this->login();
+            $data = $this->getPreSettlements(Auth::user()->username, $initial_date, $final_date);
+
+            $data_response = [];
+            $data_response['value'] = $data['value'];
+
+            while (true) {
+                if (isset($data['odata.nextLink'])) {
+                    $skip = explode('skip=', $data['odata.nextLink'])[1];
+                    $data = $this->getPreSettlements(Auth::user()->username, $initial_date, $final_date, $skip);
+                    $data_response['value'] = array_merge($data_response['value'], $data['value']);
+                } else {
+                    break;
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Facturas registradas obtenidas correctamente',
+                'data' => $data_response['value']
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No se pudo obtener las facturas registradas'
+            ]);
+        }
+    }
 }

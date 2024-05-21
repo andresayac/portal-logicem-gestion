@@ -47,6 +47,11 @@
                                 <i class="fas fa-stream mr-1"></i>Pagos efectuados
                             </a>
                         </li>
+                        <li class="<?= request()->routeIs('documentos.preliquidaciones') ? 'active' : '' ?>">
+                            <a class="nav-link" href="{{ route('documentos.preliquidaciones') }}">
+                                <i class="fas fa-stream mr-1"></i>Preliquidaciones
+                            </a>
+                        </li>
                     </ul>
                 </li>
             @endif

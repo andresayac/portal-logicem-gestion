@@ -40,6 +40,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/documentos/pagos-efectuados', [PortalController::class, 'pagosEfectuados'])->name('documentos.pagos-efectuados');
     Route::get('/documentos/pagos-efectuados/json', [PortalController::class, 'pagosEfectuadosJson'])->name('documentos.pagos-efectuados-json');
 
+    // documentos Preliquidaciones
+    Route::get('/documentos/preliquidaciones', [PortalController::class, 'preliquidaciones'])->name('documentos.preliquidaciones');
+    Route::get('/documentos/preliquidaciones/json', [PortalController::class, 'preliquidacionesJson'])->name('documentos.preliquidaciones-json');
+
     // logs
     Route::get('/logs', [LogsController::class, 'index'])->name('logs');
     Route::get('/logs/{log}', [LogsController::class, 'details'])->name('logs.details');
