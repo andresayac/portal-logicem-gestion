@@ -87,6 +87,7 @@
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                         <div class="form-group mt-2">
+                            {{-- <label for="otp">OTP: {{ $otp }}</label> --}}
                             <label for="otp">OTP: {{ $otp }}</label>
                             <input id="otp" type="text" name="otp" required class="form-control"
                                 tabindex="2">
