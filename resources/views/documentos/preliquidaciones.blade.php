@@ -14,19 +14,6 @@
                 </div>
                 <div class="card-body pt-1">
                     <form id="filters" class="row">
-                        <div class='col-6'>
-                            <div class="form-group">
-                                <label>Fecha de inicio <code>*</code></label>
-                                <input type="text" class="form-control" id="initial_date" name="initial_date"
-                                    required>
-                            </div>
-                        </div>
-                        <div class='col-6'>
-                            <div class="form-group">
-                                <label>Fecha de Final <code>*</code></label>
-                                <input type="text" class="form-control" id="final_date" name="final_date" required>
-                            </div>
-                        </div>
                         <div class='col-12'>
                             <div class=" mt-3">
                                 <div class="col-12 text-center">
@@ -174,18 +161,8 @@
 
                 $('#loading-table').show();
 
-                let initial_date = $('#initial_date').val();
-                let final_date = $('#final_date').val();
-
-                if (!initial_date || !final_date) {
-                    alert('Por favor complete los campos requeridos');
-                    return;
-                }
-
                 // prepare url with params
                 let url = '<?= route('documentos.preliquidaciones-json') ?>';
-                url += '?initial_date=' + initial_date;
-                url += '&final_date=' + final_date;
 
                 $.ajax({
                     url: url,
@@ -228,12 +205,6 @@
                     },
                 }
 
-                $('#initial_date').daterangepicker({
-                    ...daterangepicker_config,
-                    startDate: moment().subtract(1, 'month').format('YYYY-MM-DD')
-                });
-                $('#final_date').daterangepicker(daterangepicker_config);
-
             })
             ();
 
@@ -255,37 +226,98 @@
                 paging: true,
 
                 columns: [{
-                        "title": "# Factura",
-                        "data": "DocNum",
+                        "title": "# Manifiesto",
+                        "data": "Manifiesto",
                     },
                     {
-                        "title": "Fecha Emisión",
-                        "data": "DocDate",
+                        "title": "Cod Tenedor",
+                        "data": "CodTenedor",
                     },
                     {
-                        "title": "Fecha Vencimiento",
-                        "data": "DocDueDate",
+                        "title": "Tenedor",
+                        "data": "Tenedor",
                     },
                     {
-                        "title": "Total",
-                        "data": "DocTotal",
+                        "title": "Facturador",
+                        "data": "Facturador",
+                    },
+                    {
+                        "title": "Fecha Manifiesto",
+                        "data": "Fecha_Manifiesto",
+                    },
+                    {
+                        "title": "Fecha Cumplido",
+                        "data": "Fecha_Cumplido",
+                    },
+                    {
+                        "title": "Fecha Entrega Documentos",
+                        "data": "Fecha_Entrega_Documentos",
+                    },
+
+                    {
+                        "title": "Dias Cumplido",
+                        "data": "Dias_Cumplido",
+                    },
+                    {
+                        "title": "Estado",
+                        "data": "Estado_Manifiesto",
+                    },
+                    {
+                        "title": "Placa",
+                        "data": "Placa",
+                    },
+                    {
+                        "title": "Origen",
+                        "data": "Origen",
+                    },
+                    {
+                        "title": "Destino",
+                        "data": "Destino",
+                    },
+                    {
+                        "title": "Cliente",
+                        "data": "Cliente",
+                    },
+                    {
+                        "title": "Cantidad Entregada",
+                        "data": "Cantidad_Entregada",
                         render: val => toPriceFormat(val),
                     },
                     {
-                        "title": "Impuestos",
-                        "data": "VatSum",
+                        "title": "Pronto Pago",
+                        "data": "Pronto_Pago",
                         render: val => toPriceFormat(val),
                     },
                     {
-                        "title": "Retenciones",
-                        "data": "WTAmount",
+                        "title": "Flete Factura",
+                        "data": "Flete_Factura",
                         render: val => toPriceFormat(val),
                     },
                     {
-                        "title": "Saldo pendiente",
-                        "data": "PaidToDate",
+                        "title": "Imprevisto",
+                        "data": "Imprevisto",
                         render: val => toPriceFormat(val),
-                    }
+                    },
+                    {
+                        "title": "Anticipo",
+                        "data": "Anticipo",
+                        render: val => toPriceFormat(val),
+                    },
+                    {
+                        "title": "Retencion",
+                        "data": "Retencion",
+                        render: val => toPriceFormat(val),
+                    },
+                    {
+                        "title": "ICA",
+                        "data": "ICA",
+                        render: val => toPriceFormat(val),
+                    },
+                    {
+                        "title": "Gastos Admin",
+                        "data": "Gastos_Admin",
+                        render: val => toPriceFormat(val),
+                    },
                 ],
                 dom: 'Bfrtip',
                 buttons: [],

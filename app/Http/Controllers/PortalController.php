@@ -146,30 +146,20 @@ class PortalController extends Controller
 
     public function preliquidacionesJson(Request $request)
     {
-        $initial_date = $request->initial_date;
-        $final_date = $request->final_date;
-
-        if ($initial_date == null || $final_date == null) {
-            return response()->json([
-                'message' => 'Los campos fecha inicial y fecha final son requeridos'
-            ], 400);
-        }
         try {
             $this->login();
-            $data = $this->getPreSettlements(Auth::user()->username, $initial_date, $final_date);
+            $data = $this->getPreSettlements(Auth::user()->username);
+
+            if (isset($data['status']) && $data['status'] == 'no_data') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No tienes preliquidaciones registradas',
+                    'data' => []
+                ]);
+            }
 
             $data_response = [];
-            $data_response['value'] = $data['value'];
-
-            while (true) {
-                if (isset($data['odata.nextLink'])) {
-                    $skip = explode('skip=', $data['odata.nextLink'])[1];
-                    $data = $this->getPreSettlements(Auth::user()->username, $initial_date, $final_date, $skip);
-                    $data_response['value'] = array_merge($data_response['value'], $data['value']);
-                } else {
-                    break;
-                }
-            }
+            $data_response['value'] = $data;
 
             return response()->json([
                 'status' => true,
