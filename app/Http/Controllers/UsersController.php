@@ -37,6 +37,9 @@ class UsersController extends Controller
 
     public function impersonateUser(Request $request)
     {
+        if (!auth()->user()->is_admin) {
+            return redirect()->route('inicio');
+        }
         $user_id = $request->user_id;
         $user = User::where('username', $user_id)->where('is_admin', 0)->first();
         if (is_null($user)) {
