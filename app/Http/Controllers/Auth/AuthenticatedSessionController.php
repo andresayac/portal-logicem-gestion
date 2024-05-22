@@ -161,11 +161,17 @@ class AuthenticatedSessionController extends Controller
             $this->login();
             $response_sap = $this->getCustomerByNit($request->nit);
 
-
             if (isset($response_sap['value'])) {
                 if (count($response_sap['value']) > 0) {
                     // save data in session
                     $request->session()->put('data_sap', $response_sap['value'][0]);
+
+                    // && $response_sap['value'][0]['Cellular'] == null
+                    if($response_sap['value'][0]['EmailAddress'] == null ){
+                        return redirect()->route('login')->withErrors([
+                            'error' => 'El correo electrónico no se encuentra registrado en nuestros registros. Contacta a tu administrador para actualizar tu información.',
+                        ]);
+                    }
 
                     return view('auth.check', [
                         'nit' => $request->nit,
@@ -176,6 +182,7 @@ class AuthenticatedSessionController extends Controller
                     ]);
                 }
             }
+
             return view('auth.check', ['nit' => $request->nit, 'success' => false]);
         } catch (\Exception $e) {
             return view('auth.check', ['nit' => $request->nit, 'success' => false]);

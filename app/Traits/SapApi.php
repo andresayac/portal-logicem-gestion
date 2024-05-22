@@ -206,6 +206,8 @@ trait SapApi
 
     protected function obscureEmail($email)
     {
+        if($email == null) return null;
+
         $email_parts = explode("@", $email);
         $email_parts[0] = substr($email_parts[0], 0, 3) . str_repeat("*", strlen($email_parts[0]) - 3);
         return implode("@", $email_parts);
@@ -213,7 +215,8 @@ trait SapApi
 
     protected function obscureMobile($mobile)
     {
-        // Asegurarse de que el número de móvil tiene al menos dos caracteres para evitar errores
+        if($mobile == null) return null;
+
         if (strlen($mobile) < 2) {
             return $mobile;
         }
