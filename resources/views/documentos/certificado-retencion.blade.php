@@ -8,6 +8,21 @@
 
     <div class="row">
         <div class="col-md-12 col-lg-12 col-sm-12">
+            <div class="card" id="whatsapp-support">
+                <div class="card-header pb-1" style="min-height: unset;">
+                    <p>Actualmente, tenemos un problema para generar tu solicitud. Por favor, contáctanos por WhatsApp
+                        para solucionarlo.</p>
+                </div>
+                <div class="card-body pt-1">
+                    <div class="container m-1 text-center">
+                        <a href="https://wa.me/573058363083?text=Hola" target="_blank" rel="noopener noreferrer"
+                            class="btn btn-success">
+                            <i class="fab fa-whatsapp"></i> Contacto via Whatsapp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header pb-1" style="min-height: unset;">
                     <h4>Filtros de búsqueda</h4>
@@ -194,10 +209,11 @@
         <script>
             let pdfBase64 = '';
 
-            (function() {
+            $(document).ready(function() {
+                $("#whatsapp-support").hide();
                 $('#show-pdf').hide();
-            })
-            ();
+            });
+
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
@@ -235,11 +251,13 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        console.log(data)
+
                         if (data.status) {
-                            if(!data.validacion){
+                            $("#whatsapp-support").hide();
+                            if (!data.validacion) {
                                 $('#btn-filter').removeClass('disabled btn-progress');
                                 $('#show-pdf').hide();
+                                $("#whatsapp-support").show();
                                 alert(data.message)
                                 return;
                             }
@@ -248,6 +266,7 @@
                             $('#embed-pdf').attr('src', 'data:application/pdf;base64,' + data.pdf);
                             pdfBase64 = data.pdf;
                         } else {
+                            $('#whatsapp-support').show();
                             $('#show-pdf').hide();
                             alert('Error generando el certificado, por favor intente mas tarde')
                         }
@@ -255,6 +274,7 @@
                     error: function(xhr, status) {
                         $('#btn-filter').removeClass('disabled btn-progress');
                         $('#show-table').hide();
+                        $("#whatsapp-support").show();
 
                         const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
                             .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';

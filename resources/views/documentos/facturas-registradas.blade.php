@@ -8,6 +8,21 @@
 
     <div class="row">
         <div class="col-md-12 col-lg-12 col-sm-12">
+            <div class="card" id="whatsapp-support">
+                <div class="card-header pb-1" style="min-height: unset;">
+                    <p>Actualmente, tenemos un problema para generar tu solicitud. Por favor, contáctanos por WhatsApp
+                        para solucionarlo.</p>
+                </div>
+                <div class="card-body pt-1">
+                    <div class="container m-1 text-center">
+                        <a href="https://wa.me/573058363083?text=Hola" target="_blank" rel="noopener noreferrer"
+                            class="btn btn-success">
+                            <i class="fab fa-whatsapp"></i> Contacto via Whatsapp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header pb-1" style="min-height: unset;">
                     <h4>Filtros de búsqueda</h4>
@@ -190,11 +205,12 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-
+                        $("#whatsapp-support").hide();
                         $('#btn-filter').removeClass('disabled btn-progress');
                         if (!data.data.length) {
-                             $('#show-table').hide();
-                            alert('No se encontraron facturas registradas en el rango de fechas seleccionado');
+                            $('#show-table').hide();
+                            alert(
+                                'No se encontraron facturas registradas en el rango de fechas seleccionado');
                             return;
                         }
                         $('#show-table').show();
@@ -204,6 +220,7 @@
                         dt_invoices.clear().draw();
                         $('#btn-filter').removeClass('disabled btn-progress');
                         $('#show-table').hide();
+                        $("#whatsapp-support").show();
 
                         const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
                             .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';
@@ -245,6 +262,7 @@
                 });
                 $('#final_date').daterangepicker(daterangepicker_config);
                 $('#show-table').hide();
+                $("#whatsapp-support").hide();
 
             })
             ();

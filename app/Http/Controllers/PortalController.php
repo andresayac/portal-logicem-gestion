@@ -162,7 +162,7 @@ class PortalController extends Controller
                     'status' => true,
                     'message' => 'No tienes pagos efectuados registrados con los filtros seleccionados',
                     'data' => []
-                ], 400);
+                ]);
             }
 
             foreach ($payments as $key => &$payment) {
@@ -204,7 +204,7 @@ class PortalController extends Controller
                     'status' => true,
                     'message' => 'No tienes preliquidaciones registradas con los filtros seleccionados',
                     'data' => []
-                ], 400);
+                ]);
             }
 
             $data_response = [];
