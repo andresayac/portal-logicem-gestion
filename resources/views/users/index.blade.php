@@ -141,7 +141,6 @@
                         "title": "Acción",
                         "data": "CardCode",
                         render: val => {
-                            console.log(val)
                             return `<a href="<?= route('users.impersonate') ?>?user_id=${val}" class="btn btn-primary btn-sm">Impersonar</a>`;
                         },
                     }

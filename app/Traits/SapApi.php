@@ -15,6 +15,7 @@ trait SapApi
     {
         return Http::withOptions([
             'verify' => false,
+            'timeout' => 8,
         ]);
     }
 
@@ -72,7 +73,7 @@ trait SapApi
 
     protected function getPurchaseInvoices($CardCode, $DocDateInitial, $DocDateEnd, $skip = 0)
     {
-        $url = $this->settingsSap['SAP_URL_WITH_PORT'] . "/b1s/v1/PurchaseInvoices?\$select=DocNum,DocDate,DocDueDate,VatSum,WTAmount,DocTotal,PaidToDate,DocCurrency&\$filter=CardCode eq '$CardCode' and DocDate ge '$DocDateInitial' and DocDate le '$DocDateEnd'&\$orderby=DocDate asc&\$skip=$skip";
+        $url = $this->settingsSap['SAP_URL_WITH_PORT'] . "/b1s/v1/PurchaseInvoices?\$select=DocEntry,DocNum,DocDate,DocDueDate,NumAtCard,VatSum,WTAmount,DocTotal,PaidToDate,DocCurrency&\$filter=CardCode eq '$CardCode' and DocDate ge '$DocDateInitial' and DocDate le '$DocDateEnd'&\$orderby=DocDate asc&\$skip=$skip";
 
         $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap])->get($url);
         DocumentsLog::create([
@@ -90,20 +91,95 @@ trait SapApi
         return $response->json();
     }
 
-    protected function getPreSettlements($CardCode)
+    protected function execQuerySap($query)
     {
         $this->settingsSap = $this->getSapSettings();
 
         $url = $this->settingsSap['SAP_API_QUERY_ENDPOINT'] . "/select";
         $body = [
-            "script" => "select * from \"_SYS_BIC\".\"Logicem/PRELIQUIDACION_MANIFIESTO\" where \"CodTenedor\" = '{$CardCode}' and \"Facturador\"='SI';",
+            "script" => $query,
             "motor" => "HANA"
         ];
 
         $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap, 'Content-Type' => 'application/json'])->withBasicAuth($this->settingsSap['SAP_API_QUERY_AUTH_BASIC_USER'], $this->settingsSap['SAP_API_QUERY_AUTH_BASIC_PASSWORD'])->post($url, $body);
+        return $response;
+    }
+
+    protected function getPreSettlements($CardCode)
+    {
+        $query = "select * from \"_SYS_BIC\".\"Logicem/PRELIQUIDACION_MANIFIESTO\" where \"CodTenedor\" = '{$CardCode}' and \"Facturador\"='SI';";
+        $response =  $this->execQuerySap($query);
         DocumentsLog::create([
             'user_id' => auth()->user()->id,
             'document_type' => 'pre-settlements',
+            'request_body' => json_encode([
+                'CardCode' => $CardCode
+            ]),
+            'response_body' => json_encode($response->json()),
+            'response_code' => $response->status(),
+        ]);
+        return $response->json();
+    }
+
+    protected function getPaymentsMade($CardCode, $DocDateInitial, $DocDateEnd)
+    {
+        $query = "call \"LOGICEM\".\"AUTOGESTION_GET_PAGOS\"('$DocDateInitial','$DocDateEnd','$CardCode');";
+        $response =  $this->execQuerySap($query);
+        DocumentsLog::create([
+            'user_id' => auth()->user()->id,
+            'document_type' => 'payments_made',
+            'request_body' => json_encode([
+                'CardCode' => $CardCode,
+                'DocDateInitial' => $DocDateInitial,
+                'DocDateEnd' => $DocDateEnd
+            ]),
+            'response_body' => json_encode($response->json()),
+            'response_code' => $response->status(),
+        ]);
+        return $response->json();
+    }
+
+    protected function getPaymentsMadeDetail($DocEntry)
+    {
+        $query = "call \"LOGICEM\".\"AUTOGESTION_GET_PAGOS_DET\"($DocEntry);";
+        $response =  $this->execQuerySap($query);
+        DocumentsLog::create([
+            'user_id' => auth()->user()->id,
+            'document_type' => 'payments_details',
+            'request_body' => json_encode([
+                'DocEntry' => $DocEntry
+            ]),
+            'response_body' => json_encode($response->json()),
+            'response_code' => $response->status(),
+        ]);
+        return $response->json();
+    }
+
+    protected function getDetailsRetentions($CardCode, $year)
+    {
+        $query = "call \"LOGICEM\".\"AUTOGESTION_DETALLE_RETENCION\"(202760);";
+        $response =  $this->execQuerySap($query);
+        DocumentsLog::create([
+            'user_id' => auth()->user()->id,
+            'document_type' => 'details_retentions',
+            'request_body' => json_encode([
+                'CardCode' => $CardCode,
+                'year' => $year
+            ]),
+            'response_body' => json_encode($response->json()),
+            'response_code' => $response->status(),
+        ]);
+        return $response->json();
+    }
+
+    // AUTOGESTION_VALIDA_PREV
+    protected function validatePreview($CardCode)
+    {
+        $query = "call \"LOGICEM\".\"AUTOGESTION_VALIDA_PREV\"('$CardCode');";
+        $response =  $this->execQuerySap($query);
+        DocumentsLog::create([
+            'user_id' => auth()->user()->id,
+            'document_type' => 'validate_preview',
             'request_body' => json_encode([
                 'CardCode' => $CardCode
             ]),
@@ -150,6 +226,10 @@ trait SapApi
 
         $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSap, 'Content-Type' => 'application/json'])->withBasicAuth($this->settingsSap['SAP_API_QUERY_AUTH_BASIC_USER'], $this->settingsSap['SAP_API_QUERY_AUTH_BASIC_PASSWORD'])->post($url, $body);
         return $response->json();
+    }
+
+    protected function validatePreviewCertificate($CardCode)
+    {
     }
 
     protected function getGenerateCertificate($CardCode = '', $yearCertificate = '', $typeCertificate = '')
@@ -206,7 +286,7 @@ trait SapApi
 
     protected function obscureEmail($email)
     {
-        if($email == null) return null;
+        if ($email == null) return null;
 
         $email_parts = explode("@", $email);
         $email_parts[0] = substr($email_parts[0], 0, 3) . str_repeat("*", strlen($email_parts[0]) - 3);
@@ -215,7 +295,7 @@ trait SapApi
 
     protected function obscureMobile($mobile)
     {
-        if($mobile == null) return null;
+        if ($mobile == null) return null;
 
         if (strlen($mobile) < 2) {
             return $mobile;

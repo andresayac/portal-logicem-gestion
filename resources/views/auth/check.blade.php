@@ -27,7 +27,7 @@
             <form method="POST" id="form-login" action="{{ route('otp') }}">
                 @csrf
 
-                @if (!$email_address && !$cellular)
+                @if (!$is_valid_phone && !$is_valid_email)
                     <div class="alert alert-danger">
                         No hay ningún método disponible para el inicio de sesión.
                     </div>
@@ -35,12 +35,12 @@
                     <div class="form-group">
                         <label for="method">Método de Verificación</label>
                         <select id="method" name="method" class="form-control" required>
-                            @if ($email_address)
+                            @if ($is_valid_email)
                                 <option value="email">Correo Electrónico</option>
                             @endif
-                            {{-- @if ($cellular)
+                            @if ($is_valid_phone)
                                 <option value="sms">SMS</option>
-                            @endif --}}
+                            @endif
                         </select>
                     </div>
 
@@ -63,7 +63,8 @@
                         </div>
                         <div class="form-group">
                             <label for="email_address_confirm">Confirme correo Electrónico</label>
-                            <input id="email_address_confirm" type="email" name="email_address_confirm" class="form-control" tabindex="2">
+                            <input id="email_address_confirm" type="email" name="email_address_confirm"
+                                class="form-control" tabindex="2">
                             @error('email_address_confirm')
                                 <div class="alert alert-danger mt-2">{{ $message }}</div>
                             @enderror
@@ -89,7 +90,8 @@
                         </div>
                         <div class="form-group">
                             <label for="cellular_confirm">Confirme número de Celular</label>
-                            <input id="cellular_confirm" type="text" name="cellular_confirm" class="form-control" tabindex="2">
+                            <input id="cellular_confirm" type="text" name="cellular_confirm" class="form-control"
+                                tabindex="2">
                             @error('cellular_confirm')
                                 <div class="alert alert-danger mt-2">{{ $message }}</div>
                             @enderror
@@ -118,6 +120,8 @@
                 const emailConfirm = document.getElementById('email_address_confirm');
                 const cellularConfirm = document.getElementById('cellular_confirm');
 
+
+
                 methodSelect.addEventListener('change', function() {
                     const selectedMethod = methodSelect.value;
 
@@ -133,6 +137,8 @@
                         cellularConfirm.setAttribute('required', true);
                     }
                 });
+
+
 
                 // Trigger change event to set initial state
                 methodSelect.dispatchEvent(new Event('change'));

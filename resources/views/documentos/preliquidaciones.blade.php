@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 col-lg-12 col-sm-12" id="show-pdf">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="show-table">
             <div class="card">
                 <div class="card-header">
                     <h4>Preliquidaciones</h4>
@@ -153,13 +153,17 @@
 
             // click visualizarPDF button show  show-pdf if is show hidden
             function visualizarPDF() {
-                $('#show-pdf').removeClass('d-none');
+
             }
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
 
                 $('#loading-table').show();
+                $('#show-table').hide();
+
+                // add a button btn-filter class disabled btn-progress
+                $('#btn-filter').addClass('disabled btn-progress');
 
                 // prepare url with params
                 let url = '<?= route('documentos.preliquidaciones-json') ?>';
@@ -169,12 +173,20 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-
+                        // show show-table if is hidden
+                        $('#show-table').show();
+                        $('#btn-filter').removeClass('disabled btn-progress');
                         dt_invoices.clear().rows.add(data.data).draw();
                     },
                     error: function(xhr, status) {
                         dt_invoices.clear().draw();
-                        alert('Error comunicandonos con nuestra API, por favor intente mas tarde')
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        $('#show-table').hide();
+
+                        const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
+                            .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';
+
+                        alert(message)
                     },
                     complete: function(xhr, status) {
                         $('#loading-table').hide();
@@ -205,6 +217,7 @@
                     },
                 }
 
+                $('#show-table').hide();
             })
             ();
 
@@ -220,11 +233,7 @@
                         }
                     }
                 },
-                // select: {
-                //     style: 'multi',
-                // },
                 paging: true,
-
                 columns: [{
                         "title": "# Manifiesto",
                         "data": "Manifiesto",

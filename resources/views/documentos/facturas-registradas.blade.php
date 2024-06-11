@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 col-lg-12 col-sm-12" id="show-pdf">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="show-table">
             <div class="card">
                 <div class="card-header">
                     <h4>Facturas Registradas</h4>
@@ -164,15 +164,12 @@
 
             let pdfBase64 = '';
 
-            // click visualizarPDF button show  show-pdf if is show hidden
-            function visualizarPDF() {
-                $('#show-pdf').removeClass('d-none');
-            }
-
             $('#filters').submit(function(event) {
                 event.preventDefault();
 
                 $('#loading-table').show();
+                $('#show-table').hide();
+                $('#btn-filter').addClass('disabled btn-progress');
 
                 let initial_date = $('#initial_date').val();
                 let final_date = $('#final_date').val();
@@ -193,11 +190,24 @@
                     dataType: 'json',
                     success: function(data) {
 
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        if (!data.data.length) {
+                             $('#show-table').hide();
+                            alert('No se encontraron facturas registradas en el rango de fechas seleccionado');
+                            return;
+                        }
+                        $('#show-table').show();
                         dt_invoices.clear().rows.add(data.data).draw();
                     },
                     error: function(xhr, status) {
                         dt_invoices.clear().draw();
-                        alert('Error comunicandonos con nuestra API, por favor intente mas tarde')
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        $('#show-table').hide();
+
+                        const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
+                            .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';
+
+                        alert(message)
                     },
                     complete: function(xhr, status) {
                         $('#loading-table').hide();
@@ -233,6 +243,7 @@
                     startDate: moment().subtract(1, 'month').format('YYYY-MM-DD')
                 });
                 $('#final_date').daterangepicker(daterangepicker_config);
+                $('#show-table').hide();
 
             })
             ();
@@ -253,10 +264,14 @@
                 //     style: 'multi',
                 // },
                 paging: true,
-
                 columns: [{
                         "title": "# Factura",
                         "data": "DocNum",
+                    },
+                    {
+                        "title": "Referencia",
+                        "data": "NumAtCard",
+                        render: val => val.replace(/\s/g, ''),
                     },
                     {
                         "title": "Fecha Emisión",

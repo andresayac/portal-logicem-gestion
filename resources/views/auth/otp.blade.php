@@ -11,17 +11,17 @@
 
     @if (!$is_admin)
         @if ('success')
-            @if ($method === 'email')
+            @if ($method === 'email' && $otp_generate)
                 <div class="alert alert-success mt-2">OTP enviado verifica tu correo electrónico o el SPAM.</div>
-            @elseif ($method === 'sms')
+            @elseif ($method === 'sms' && $otp_generate)
                 <div class="alert alert-success mt-2">OTP enviado verifica tu celular.</div>
+            @elseif (!$otp_generate)
+                <div class="alert alert-danger mt-2">Espera 5 minutos para gererar otro OTP.</div>
             @endif
         @else
             <div class="alert alert-danger mt-2">Error al enviar el OTP</div>
         @endif
     @endif
-
-
 
     <div class="login-brand mb-1">
         <img src="{{ asset('images/logoF.png') }}" alt="logo" width="250" class="">
@@ -42,8 +42,6 @@
         <div class="card-body">
             <form method="POST" id="form-login" action="{{ route('login') }}">
                 @csrf
-
-
                 @if ($is_admin)
                     <div class="form-group">
                         <label for="nit">Usuario</label>
@@ -71,7 +69,7 @@
                         @enderror
                     </div>
                     <div class="form-group mt-2">
-                        <label for="otp">OTP:</label>
+                        <label for="otp">OTP: {{ $otp }}</label>
                         <input id="otp" type="text" name="otp" required class="form-control"
                             tabindex="2">
                         @error('otp')
@@ -87,7 +85,8 @@
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
                         <div class="form-group mt-2">
-                            <label for="otp">OTP:</label>
+                            {{-- <label for="otp">OTP: {{ $otp }}</label> --}}
+                            <label for="otp">OTP: {{ $otp }}</label>
                             <input id="otp" type="text" name="otp" required class="form-control"
                                 tabindex="2">
                             @error('otp')
@@ -95,6 +94,14 @@
                             @enderror
                         </div>
                 @endif
+
+                <div class="form-group">
+                    <button type="button" id="generate-otp" class="btn btn-primary btn-lg btn-block" tabindex="3" onclick=""
+                        disabled>
+                        Generar nuevo OTP
+                    </button>
+                    <div id="otp-timer" class="text-center mt-2"></div>
+                </div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="3">
@@ -116,6 +123,43 @@
                 $(this).find('button[type="submit"]').attr('disabled', true);
                 $(this).find('button[type="submit"]').addClass('btn-progress');
             });
+            document.addEventListener('DOMContentLoaded', function() {
+            const generateOtpButton = document.getElementById('generate-otp');
+            const otpTimer = document.getElementById('otp-timer');
+
+            const otpTimeGenerate = '{{ $otp_time_generate ?? '' }}';
+            const otpCooldown = 5 * 60; // 5 minutos en segundos
+
+            if (otpTimeGenerate) {
+                const otpTimeGenerateDate = new Date(otpTimeGenerate).getTime() / 1000;
+                const currentTime = Math.floor(Date.now() / 1000);
+                const elapsedTime = currentTime - otpTimeGenerateDate;
+
+                if (elapsedTime >= otpCooldown) {
+                    generateOtpButton.removeAttribute('disabled');
+                    otpTimer.textContent = 'Puede generar un nuevo OTP';
+                } else {
+                    let remainingTime = otpCooldown - elapsedTime;
+                    const interval = setInterval(function() {
+                        const minutes = Math.floor(remainingTime / 60);
+                        const seconds = remainingTime % 60;
+                        otpTimer.textContent = `Nuevo OTP en ${minutes} min y ${seconds < 10 ? '0' : ''}${seconds} segundos para reintentar`;
+                        if (remainingTime <= 0) {
+                            clearInterval(interval);
+                            generateOtpButton.removeAttribute('disabled');
+                            otpTimer.textContent = 'Puede generar un nuevo OTP';
+                        } else {
+                            remainingTime--;
+                        }
+                    }, 1000);
+                }
+            }
+
+            // funcion para actualizar la pagina y generar un nuevo OTP
+            generateOtpButton.addEventListener('click', function() {
+                window.location.reload();
+            });
+        });
         </script>
     @endPushOnce
 

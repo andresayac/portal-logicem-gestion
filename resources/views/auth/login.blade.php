@@ -40,7 +40,7 @@
 
                 <div class="form-group">
                     <label for="text">NIT</label>
-                    <input id="email" type="text" name="nit" value="{{ old('nit') ?? '' }}"
+                    <input id="email" type="text" name="nit" value="{{ old('nit') ?? '901643748-8' }}"
                         required autofocus class="form-control" tabindex="1">
                     <?php if ($errors->has('nit')) : ?>
                     @foreach ($errors->get('nit') as $error)

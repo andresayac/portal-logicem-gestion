@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Bogota',
 
     /*
     |--------------------------------------------------------------------------
@@ -203,6 +203,11 @@ return [
     'portal' => [
         'user_admin' => env('ADMIN_PORTAL_USER', 'ADMINISTRADOR'),
         'password_admin' =>  env('ADMIN_PORTAL_PASSWORD', 'ADMINISTRADOR'),
-    ]
+    ],
+    'sms_labsmobile' => [
+        'sms_active' => env('SMS_LABS_MOBILE_ACTIVE', false),
+        'sms_user' => env('SMS_LABS_MOBILE_USER', ''),
+        'sms_password' => env('SMS_LABS_MOBILE_TOKEN', ''),
+    ],
 
 ];

@@ -17,8 +17,11 @@
                         <div class='col-6'>
                             <div class="form-group">
                                 <label>Año de certificado <code>*</code></label>
-                                <input required type="number" min='2005' class="form-control"
-                                    id="year_certificate" name="<h1>Certificado de retenciones</h1>">
+                                <select class="form-control" id="year_certificate">
+                                    @foreach ($list_years as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                         <div class='col-6'>
@@ -78,7 +81,7 @@
         </div>
 
 
-        <div class="col-md-12 col-lg-12 col-sm-12 d-none" id="show-pdf">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="show-pdf">
             <div class="card">
                 <div class="card-header">
                     <h4>Documento generado</h4>
@@ -191,32 +194,32 @@
         <script>
             let pdfBase64 = '';
 
-            // click visualizarPDF button show  show-pdf if is show hidden
-            function visualizarPDF() {
-                $('#show-pdf').removeClass('d-none');
-            }
+            (function() {
+                $('#show-pdf').hide();
+            })
+            ();
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
+                $('#loading-table').show();
+                $('#show-pdf').hide();
+                $('#btn-filter').addClass('disabled btn-progress');
 
-                let year_certificate = $('#year_certificate').val();
+                let year_certificate = Number($('#year_certificate').val());
                 let type_certificate = $('#type_certificate').val();
 
                 if (!year_certificate || !type_certificate) {
                     alert('Por favor complete los campos requeridos');
                     return;
                 }
-
-                // if type_certificate = '' show alert
                 if (type_certificate == '') {
                     alert('Por favor seleccione un tipo de certificado');
                     return;
                 }
 
-                // year certificate must be between 2005 and year current - 1 year
                 let year_current = new Date().getFullYear();
-                if (year_certificate < 2005 || year_certificate > year_current - 1) {
-                    alert('El año del certificado debe estar entre 2005 y ' + (year_current - 1));
+                if (year_certificate < year_current - 1 && year_certificate > year_current) {
+                    alert('El año del certificado debe estar entre ' + (year_current - 1) + ' y ' + (year_current));
                     return;
                 }
 
@@ -232,15 +235,29 @@
                     success: function(data) {
                         console.log(data)
                         if (data.status) {
+                            if(!data.validacion){
+                                $('#btn-filter').removeClass('disabled btn-progress');
+                                $('#show-pdf').hide();
+                                alert(data.message)
+                                return;
+                            }
+                            $('#show-pdf').show();
+                            $('#btn-filter').removeClass('disabled btn-progress');
                             $('#embed-pdf').attr('src', 'data:application/pdf;base64,' + data.pdf);
                             pdfBase64 = data.pdf;
-                            visualizarPDF();
                         } else {
+                            $('#show-pdf').hide();
                             alert('Error generando el certificado, por favor intente mas tarde')
                         }
                     },
                     error: function(xhr, status) {
-                        alert('Error comunicandonos con nuestra API, por favor intente mas tarde')
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        $('#show-table').hide();
+
+                        const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
+                            .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';
+
+                        alert(message)
                     },
                     complete: function(xhr, status) {
 
@@ -282,7 +299,7 @@
             }
 
             // init year_certificate max year current - 1
-            $('#year_certificate').attr('max', new Date().getFullYear() - 1);
+            $('#year_certificate').attr('max', new Date().getFullYear());
         </script>
     @endPushOnce
 

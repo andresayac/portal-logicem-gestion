@@ -43,7 +43,7 @@
 
 
 
-        <div class="col-md-12 col-lg-12 col-sm-12" id="show-pdf">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="show-table">
             <div class="card">
                 <div class="card-header">
                     <h4>Pagos Efectuados</h4>
@@ -167,14 +167,15 @@
             let pdfBase64 = '';
 
             // click visualizarPDF button show  show-pdf if is show hidden
-            function visualizarPDF() {
-                $('#show-pdf').removeClass('d-none');
-            }
+            $('#show-table').hide();
+
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
 
                 $('#loading-table').show();
+                $('#show-table').hide();
+                $('#btn-filter').addClass('disabled btn-progress');
 
                 let initial_date = $('#initial_date').val();
                 let final_date = $('#final_date').val();
@@ -185,7 +186,7 @@
                 }
 
                 // prepare url with params
-                let url = '<?= route('documentos.facturas-registradas-json') ?>';
+                let url = '<?= route('documentos.pagos-efectuados-json') ?>';
                 url += '?initial_date=' + initial_date;
                 url += '&final_date=' + final_date;
 
@@ -195,11 +196,25 @@
                     dataType: 'json',
                     success: function(data) {
 
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        console.log(data.data.length)
+                        console.log(data.data)
+                        if(!data.data.length){
+                            alert('No hay datos para mostrar');
+                            return;
+                        }
+                        $('#show-table').show();
                         dt_invoices.clear().rows.add(data.data).draw();
                     },
                     error: function(xhr, status) {
                         dt_invoices.clear().draw();
-                        alert('Error comunicandonos con nuestra API, por favor intente mas tarde')
+                        $('#btn-filter').removeClass('disabled btn-progress');
+                        $('#show-table').hide();
+
+                        const message = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON
+                            .message : 'Error comunicandonos con nuestra API, por favor intente mas tarde';
+
+                        alert(message)
                     },
                     complete: function(xhr, status) {
                         $('#loading-table').hide();
@@ -239,6 +254,38 @@
             })
             ();
 
+            const format = (d) => {
+                let keys = Object.keys(d);
+                let values = Object.values(d);
+                let html = '<table class="table table-bordered">';
+                html += `<tr>
+                    <th>#</th>
+                    <th>Referencia</th>
+                    <th>Fecha Contabilización</th>
+                    <th>Total</th>
+                    <th>Comentarios</th>
+                </tr>`;
+
+                // si no hay detalles mostrar mensaje
+                if (!values.length) {
+                    html += `<tr>
+                        <td colspan="5" class="text-center">No hay detalles</td>
+                    </tr>`;
+                    html += '</table>';
+                    return html;
+                }
+                for (let i = 0; i < keys.length; i++) {
+                    html += `<tr>
+                        <td>${values[i]['DocNum']}</td>
+                        <td>${values[i]['NumAtCard']}</td>
+                        <td>${values[i]['Fecha_Contabilizacion']}</td>
+                        <td>${toPriceFormat(values[i]['DocTotal'])}</td>
+                        <td>${values[i]['Comentarios']}</td>
+                    </tr>`;
+                }
+                html += '</table>';
+                return html;
+            }
 
             var dt_invoices = $('#table-invoices').DataTable({
                 language: {
@@ -251,22 +298,14 @@
                         }
                     }
                 },
-                // select: {
-                //     style: 'multi',
-                // },
                 paging: true,
-
                 columns: [{
                         "title": "# Factura",
                         "data": "DocNum",
                     },
                     {
-                        "title": "Fecha Emisión",
-                        "data": "DocDate",
-                    },
-                    {
-                        "title": "Fecha Vencimiento",
-                        "data": "DocDueDate",
+                        "title": "Fecha Contabilización",
+                        "data": "Fecha_Contabilizacion",
                     },
                     {
                         "title": "Total",
@@ -274,23 +313,35 @@
                         render: val => toPriceFormat(val),
                     },
                     {
-                        "title": "Impuestos",
-                        "data": "VatSum",
-                        render: val => toPriceFormat(val),
+                        'className': 'dt-control',
+                        'title': 'Detalles',
+                        'data': 'details',
+                        render: function(data, type, row) {
+                            if (!data.length) {
+                                return 'Sin detalles';
+                            }
+                            return '<button class="btn btn-primary btn-icon icon-left toggle-details dt-control">Ver</button>';
+                        },
+                        defaultContent: ''
                     },
-                    {
-                        "title": "Retenciones",
-                        "data": "WTAmount",
-                        render: val => toPriceFormat(val),
-                    },
-                    {
-                        "title": "Saldo pendiente",
-                        "data": "PaidToDate",
-                        render: val => toPriceFormat(val),
-                    }
                 ],
                 dom: 'Bfrtip',
                 buttons: [],
+            });
+
+            // Add event listener for opening and closing details
+            dt_invoices.on('click', 'td.dt-control', function(e) {
+                let tr = e.target.closest('tr');
+                let row = dt_invoices.row(tr);
+                let button = $(e.target).closest('button');
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    button.text('Ver');
+                } else {
+                    row.child(format(row.data()?.details)).show();
+                    button.text('Ocultar');
+                }
             });
         </script>
     @endPushOnce

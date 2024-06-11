@@ -17,7 +17,18 @@ class PortalController extends Controller
 
     public function certificadoRetencion()
     {
-        return view('documentos.certificado-retencion');
+        $list_years =  $this->getListYears();
+        return view('documentos.certificado-retencion', compact('list_years'));
+    }
+
+    protected function getListYears()
+    {
+        $current_year = Carbon::now()->year;
+        $list_years = [];
+        $list_years[] = $current_year;
+        $list_years[] = $current_year - 1;
+
+        return $list_years;
     }
 
     public function certificadoRetencionPdf(Request $request)
@@ -31,22 +42,53 @@ class PortalController extends Controller
             ], 400);
         }
 
-        $this->loginApiPdf();
-        $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate, $type_certificate);
-        // return base64 pdf
+        $list_years =  $this->getListYears();
 
-        if (empty($data)) {
+        if (!in_array($year_certificate, $list_years)) {
+            return response()->json([
+                'message' => 'El año seleccionado no es valido'
+            ], 400);
+        }
+
+        try {
+            $this->login();
+
+            // validatePreview($CardCode)
+            $check = $this->validatePreview(Auth::user()->username);
+
+            if (isset($check[0]['Validacion']) && $check[0]['Validacion'] === false) {
+                return response()->json([
+                    'status' => false,
+                    'validation' => false,
+                    'message' => 'No se pudo generar el certificado contacte al administrador del sistema.'
+                ], 400);
+            }
+
+            $this->loginApiPdf();
+            $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate, $type_certificate);
+            // return base64 pdf
+
+            if (empty($data)) {
+                return response()->json([
+                    'status' => false,
+                    'validation' => true,
+                    'message' => 'No se pudo generar el certificado intentelo de nuevo mas tarde'
+                ], 400);
+            }
+
+            return response()->json([
+                'status' => true,
+                'validacion' => true,
+                'message' => 'Certificado generado correctamente',
+                'pdf' => $data
+            ]);
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
+                'validacion' => true,
                 'message' => 'No se pudo generar el certificado intentelo de nuevo mas tarde'
             ]);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Certificado generado correctamente',
-            'pdf' => $data
-        ]);
     }
 
     public function facturasRegistradas()
@@ -68,6 +110,7 @@ class PortalController extends Controller
             $this->login();
             $data = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date);
 
+
             $data_response = [];
             $data_response['value'] = $data['value'];
 
@@ -89,8 +132,9 @@ class PortalController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'No se pudo obtener las facturas registradas'
-            ]);
+                'message' => 'No se pudo obtener las facturas registradas',
+                'error' => 'Error al obtener las facturas registradas'
+            ], 400);
         }
     }
 
@@ -111,31 +155,36 @@ class PortalController extends Controller
         }
         try {
             $this->login();
-            $data = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date);
+            $payments = $this->getPaymentsMade(Auth::user()->username, $initial_date, $final_date);
 
-            $data_response = [];
-            $data_response['value'] = $data['value'];
+            if (isset($payments['status']) && $payments['status'] == 'no_data') {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No tienes pagos efectuados registrados con los filtros seleccionados',
+                    'data' => []
+                ], 400);
+            }
 
-            while (true) {
-                if (isset($data['odata.nextLink'])) {
-                    $skip = explode('skip=', $data['odata.nextLink'])[1];
-                    $data = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date, $skip);
-                    $data_response['value'] = array_merge($data_response['value'], $data['value']);
-                } else {
-                    break;
+            foreach ($payments as $key => &$payment) {
+                $payment['details'] = $this->getPaymentsMadeDetail($payment['DocEntry']);
+                // recorrer details si DocNum es null eliminar
+                foreach ($payment['details'] as $key => $detail) {
+                    if ($detail['DocNum'] == null) {
+                        unset($payment['details'][$key]);
+                    }
                 }
             }
 
             return response()->json([
                 'status' => true,
-                'message' => 'Facturas registradas obtenidas correctamente',
-                'data' => $data_response['value']
+                'message' => 'Pagos efectuados obtenidos correctamente',
+                'data' => $payments
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'No se pudo obtener las facturas registradas'
-            ]);
+                'message' => 'No se pudo obtener los pagos efectuados'
+            ], 400);
         }
     }
 
@@ -152,10 +201,10 @@ class PortalController extends Controller
 
             if (isset($data['status']) && $data['status'] == 'no_data') {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'No tienes preliquidaciones registradas',
+                    'status' => true,
+                    'message' => 'No tienes preliquidaciones registradas con los filtros seleccionados',
                     'data' => []
-                ]);
+                ], 400);
             }
 
             $data_response = [];
@@ -170,7 +219,7 @@ class PortalController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'No se pudo obtener las facturas registradas'
-            ]);
+            ], 400);
         }
     }
 }

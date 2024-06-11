@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Traits\SapApi;
 use App\Jobs\sendOtpToUser;
+use App\Jobs\sendSmsToUser;
 use App\Notifications\NewNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -41,9 +42,6 @@ class AuthenticatedSessionController extends Controller
     public function otpAuth(Request $request)
     {
         try {
-
-            // dd($request->all(), $request->session()->all());
-
             $data_sap = $request->session()->get('data_sap');
             $method = $request->get('method');
             $email_address_confirm = $request->get('email_address_confirm');
@@ -55,10 +53,29 @@ class AuthenticatedSessionController extends Controller
 
                 if ($method == 'email') {
                     if ($email_sap == $email_address_confirm) {
+
+                        // si existe ya un opt en session no volver a generar
+                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5) {
+                            return view('auth.otp', [
+                                'nit' => $request->nit,
+                                'email' => $this->obscureEmail($data_sap['EmailAddress']),
+                                'mobile' => $this->obscureMobile($data_sap['Cellular']),
+                                'data' => $data_sap,
+                                'success' => true,
+                                'otp' => $request->session()->get('otp'),
+                                'is_admin' => false,
+                                'method' => 'email',
+                                'otp_time_generate' => $request->session()->get('otp_time_generate'),
+                                'otp_generate' => false
+                            ]);
+                        }
+
+
                         // GENERATE OTP
                         $otp = rand(100000, 999999);
-                        // SaVE OTP IN SESSION
+                        // save in session
                         $request->session()->put('otp', $otp);
+                        $request->session()->put('otp_time_generate', now()->timezone('America/Bogota'));
 
                         sendOtpToUser::dispatch([
                             'name' => $data_sap['CardName'],
@@ -77,7 +94,9 @@ class AuthenticatedSessionController extends Controller
                             'success' => true,
                             'otp' => $otp,
                             'is_admin' => false,
-                            'method' => 'email'
+                            'method' => 'email',
+                            'otp_time_generate' => $request->session()->get('otp_time_generate'),
+                            'otp_generate' => true
                         ]);
                     } else {
                         return redirect()->route('login')->withErrors([
@@ -86,14 +105,32 @@ class AuthenticatedSessionController extends Controller
                     }
                 } elseif ($method == 'sms') {
                     if ($cellular_sap == $cellular_confirm) {
+
+                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5) {
+                            return view('auth.otp', [
+                                'nit' => $request->nit,
+                                'email' => $this->obscureEmail($data_sap['EmailAddress']),
+                                'mobile' => $this->obscureMobile($data_sap['Cellular']),
+                                'data' => $data_sap,
+                                'success' => true,
+                                'otp' => $request->session()->get('otp'),
+                                'is_admin' => false,
+                                'method' => 'sms',
+                                'otp_time_generate' => $request->session()->get('otp_time_generate'),
+                                'otp_generate' => false
+                            ]);
+                        }
+
+
                         // GENERATE OTP
                         $otp = rand(100000, 999999);
                         // SaVE OTP IN SESSION
                         $request->session()->put('otp', $otp);
+                        $request->session()->put('otp_time_generate', now()->timezone('America/Bogota'));
 
-                        sendOtpToUser::dispatch([
+                        sendSmsToUser::dispatch([
                             'name' => $data_sap['CardName'],
-                            'email' => $data_sap['EmailAddress'],
+                            'phone' => '573002782284', // . $data_sap['Cellular'],
                             'title' => $otp . ' - Es su código de verificación OTP',
                             'otp' => $otp,
                             'username' => $data_sap['CardCode'],
@@ -108,9 +145,15 @@ class AuthenticatedSessionController extends Controller
                             'success' => true,
                             'otp' => $otp,
                             'is_admin' => false,
-                            'method' => 'sms'
+                            'method' => 'sms',
+                            'otp_time_generate' => $request->session()->get('otp_time_generate'),
+                            'otp_generate' => true
                         ]);
                     } else {
+                        // session forget
+                        $request->session()->forget('otp');
+                        $request->session()->forget('data_sap');
+                        $request->session()->forget('otp_time_generate');
                         return redirect()->route('login')->withErrors([
                             'error' => 'El número de celular no coincide con el registrado en nuestros registros.',
                         ]);
@@ -130,7 +173,7 @@ class AuthenticatedSessionController extends Controller
 
     public function otp(Request $request)
     {
-        return view('auth.otp', ['nit' => '', 'success' => false, 'email' => '', 'data' => null, 'otp' => '', 'is_admin' => false]);
+        return view('auth.otp', ['nit' => '', 'success' => false, 'email' => '', 'data' => null, 'otp' => '', 'is_admin' => false, 'method' => 'email']);
     }
 
     public function check(Request $request)
@@ -141,7 +184,6 @@ class AuthenticatedSessionController extends Controller
 
     public function checkAuth(Request $request)
     {
-
         if ($request->nit == config('app.portal.user_admin')) {
             // set session is admin
             $request->session()->put('is_admin', true);
@@ -167,11 +209,13 @@ class AuthenticatedSessionController extends Controller
                     $request->session()->put('data_sap', $response_sap['value'][0]);
 
                     // && $response_sap['value'][0]['Cellular'] == null
-                    if($response_sap['value'][0]['EmailAddress'] == null ){
+                    if ($response_sap['value'][0]['EmailAddress'] == null) {
                         return redirect()->route('login')->withErrors([
                             'error' => 'El correo electrónico no se encuentra registrado en nuestros registros. Contacta a tu administrador para actualizar tu información.',
                         ]);
                     }
+
+                    $request->session()->put('otp_time_generate', now()->timezone('America/Bogota'));
 
                     return view('auth.check', [
                         'nit' => $request->nit,
@@ -179,14 +223,27 @@ class AuthenticatedSessionController extends Controller
                         'card_name' => $response_sap['value'][0]['CardName'] ?? null,
                         'email_address' =>  $this->obscureEmail($response_sap['value'][0]['EmailAddress']) ?? null,
                         'cellular' => $this->obscureMobile($response_sap['value'][0]['Cellular']) ?? null,
+                        'is_valid_phone' => config('app.sms_labsmobile.sms_active') === false ? false : $this->validatePhone($response_sap['value'][0]['Cellular']),
+                        'is_valid_email' => $this->validateMail($response_sap['value'][0]['EmailAddress'])
                     ]);
                 }
             }
+
 
             return view('auth.check', ['nit' => $request->nit, 'success' => false]);
         } catch (\Exception $e) {
             return view('auth.check', ['nit' => $request->nit, 'success' => false]);
         }
+    }
+
+    protected function validatePhone($phone)
+    {
+        return preg_match('/^[3]{1}[0-9]{9}$/', $phone);
+    }
+
+    protected function validateMail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
     /**

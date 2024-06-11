@@ -57,6 +57,11 @@ class ApiLogin
 
 
             if ($otp != $otp_request) {
+                // clear session data
+                $request->session()->forget('otp');
+                $request->session()->forget('data_sap');
+                $request->session()->forget('otp_time_generate');
+
                 return redirect()->route('login')->withErrors([
                     'error' => 'El código de verificación no coincide intentelo de nuevo.',
                 ]);
