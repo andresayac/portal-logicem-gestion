@@ -12,8 +12,7 @@ use Illuminate\View\View;
 use App\Traits\SapApi;
 use App\Jobs\sendOtpToUser;
 use App\Jobs\sendSmsToUser;
-use App\Notifications\NewNotification;
-use Illuminate\Support\Facades\Notification;
+
 
 class AuthenticatedSessionController extends Controller
 {

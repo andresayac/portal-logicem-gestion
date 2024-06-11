@@ -108,26 +108,24 @@ class PortalController extends Controller
         }
         try {
             $this->login();
-            $data = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date);
+            $purchaseInvoices = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date);
 
+            if (isset($purchaseInvoices['status']) && $purchaseInvoices['status'] == 'no_data') {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No tienes facturas registradas con los filtros seleccionados',
+                    'data' => []
+                ]);
+            }
 
-            $data_response = [];
-            $data_response['value'] = $data['value'];
-
-            while (true) {
-                if (isset($data['odata.nextLink'])) {
-                    $skip = explode('skip=', $data['odata.nextLink'])[1];
-                    $data = $this->getPurchaseInvoices(Auth::user()->username, $initial_date, $final_date, $skip);
-                    $data_response['value'] = array_merge($data_response['value'], $data['value']);
-                } else {
-                    break;
-                }
+            foreach ($purchaseInvoices as &$purchaseInvoice) {
+               $purchaseInvoice['details'] = $this->getDetailsRetentions($purchaseInvoice['DocEntry']);
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Facturas registradas obtenidas correctamente',
-                'data' => $data_response['value']
+                'data' => $purchaseInvoices
             ]);
         } catch (\Throwable $th) {
             return response()->json([

@@ -270,38 +270,7 @@
             })
             ();
 
-            const format = (d) => {
-                let keys = Object.keys(d);
-                let values = Object.values(d);
-                let html = '<table class="table table-bordered">';
-                html += `<tr>
-                    <th>#</th>
-                    <th>Referencia</th>
-                    <th>Fecha Contabilización</th>
-                    <th>Total</th>
-                    <th>Comentarios</th>
-                </tr>`;
 
-                // si no hay detalles mostrar mensaje
-                if (!values.length) {
-                    html += `<tr>
-                        <td colspan="5" class="text-center">No hay detalles</td>
-                    </tr>`;
-                    html += '</table>';
-                    return html;
-                }
-                for (let i = 0; i < keys.length; i++) {
-                    html += `<tr>
-                        <td>${values[i]['DocNum']}</td>
-                        <td>${values[i]['NumAtCard']}</td>
-                        <td>${values[i]['Fecha_Contabilizacion']}</td>
-                        <td>${toPriceFormat(values[i]['DocTotal'])}</td>
-                        <td>${values[i]['Comentarios']}</td>
-                    </tr>`;
-                }
-                html += '</table>';
-                return html;
-            }
 
             var dt_invoices = $('#table-invoices').DataTable({
                 language: {
@@ -344,6 +313,39 @@
                 dom: 'Bfrtip',
                 buttons: [],
             });
+
+            const format = (d) => {
+                let keys = Object.keys(d);
+                let values = Object.values(d);
+                let html = '<table class="table table-bordered">';
+                html += `<tr>
+                    <th>#</th>
+                    <th>Referencia</th>
+                    <th>Fecha Contabilización</th>
+                    <th>Total</th>
+                    <th>Comentarios</th>
+                </tr>`;
+
+                // si no hay detalles mostrar mensaje
+                if (!values.length) {
+                    html += `<tr>
+                        <td colspan="5" class="text-center">No hay detalles</td>
+                    </tr>`;
+                    html += '</table>';
+                    return html;
+                }
+                for (let i = 0; i < keys.length; i++) {
+                    html += `<tr>
+                        <td>${values[i]['DocNum']}</td>
+                        <td>${values[i]['NumAtCard']}</td>
+                        <td>${values[i]['Fecha_Contabilizacion']}</td>
+                        <td>${toPriceFormat(values[i]['DocTotal'])}</td>
+                        <td>${values[i]['Comentarios']}</td>
+                    </tr>`;
+                }
+                html += '</table>';
+                return html;
+            }
 
             // Add event listener for opening and closing details
             dt_invoices.on('click', 'td.dt-control', function(e) {

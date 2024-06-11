@@ -210,7 +210,8 @@
                         if (!data.data.length) {
                             $('#show-table').hide();
                             alert(
-                                'No se encontraron facturas registradas en el rango de fechas seleccionado');
+                                'No se encontraron facturas registradas en el rango de fechas seleccionado'
+                                );
                             return;
                         }
                         $('#show-table').show();
@@ -312,17 +313,79 @@
                     },
                     {
                         "title": "Retenciones",
-                        "data": "WTAmount",
+                        "data": "WTSum",
                         render: val => toPriceFormat(val),
                     },
                     {
                         "title": "Saldo pendiente",
                         "data": "PaidToDate",
                         render: val => toPriceFormat(val),
-                    }
+                    },
+                    {
+                        'className': 'dt-control',
+                        'title': 'Detalles de retenciones',
+                        'data': 'details',
+                        render: function(data, type, row) {
+                            if (!data.length) {
+                                return 'Sin detalles';
+                            }
+                            return '<button class="btn btn-primary btn-icon icon-left toggle-details dt-control">Ver</button>';
+                        },
+                        defaultContent: ''
+                    },
                 ],
                 dom: 'Bfrtip',
                 buttons: [],
+            });
+
+            const format = (d) => {
+                let keys = Object.keys(d);
+                let values = Object.values(d);
+                let html = '<table class="table table-bordered">';
+                html += `<tr>
+                    <th>Código</th>
+                    <th>Retención</th>
+                    <th>Tipo</th>
+                    <th>Base Retencion</th>
+                    <th>Porcentaje</th>
+                    <th>Tarifa</th>
+                </tr>`;
+
+                // si no hay detalles mostrar mensaje
+                if (!values.length) {
+                    html += `<tr>
+                        <td colspan="5" class="text-center">No hay detalles</td>
+                    </tr>`;
+                    html += '</table>';
+                    return html;
+                }
+                for (let i = 0; i < keys.length; i++) {
+                    html += `<tr>
+                        <td>${values[i]['Código']}</td>
+                        <td>${values[i]['Retención']}</td>
+                        <td>${values[i]['Tipo']}</td>
+                        <td>${toPriceFormat(values[i]['Base_Retencion'])}</td>
+                        <td>${values[i]['Porcentaje']}</td>
+                        <td>${values[i]['Tarifa']}</td>
+                    </tr>`;
+                }
+                html += '</table>';
+                return html;
+            }
+
+            // Add event listener for opening and closing details
+            dt_invoices.on('click', 'td.dt-control', function(e) {
+                let tr = e.target.closest('tr');
+                let row = dt_invoices.row(tr);
+                let button = $(e.target).closest('button');
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    button.text('Ver');
+                } else {
+                    row.child(format(row.data()?.details)).show();
+                    button.text('Ocultar');
+                }
             });
         </script>
     @endPushOnce
