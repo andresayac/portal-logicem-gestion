@@ -160,40 +160,22 @@ trait SapApi
 
     protected function getPaymentsMadeDetail($DocEntry)
     {
-        $query = "call \"LOGICEM\".\"AUTOGESTION_GET_PAGOS_DET\"($DocEntry);";
+        $query = "call \"LOGICEM\".\"AUTOGESTION_GET_PAGOS_DET\"('{$DocEntry}');";
         $response =  $this->execQuerySap($query);
-        DocumentsLog::create([
-            'user_id' => auth()->user()->id,
-            'document_type' => 'payments_details',
-            'request_body' => json_encode([
-                'DocEntry' => $DocEntry
-            ]),
-            'response_body' => json_encode($response->json()),
-            'response_code' => $response->status(),
-        ]);
         return $response->json();
     }
 
-    protected function getDetailsRetentions($CardCode)
+    protected function getDetailsRetentions($DocEntry)
     {
-        $query = "call \"LOGICEM\".\"AUTOGESTION_DETALLE_RETENCION\"(202760);";
+        $query = "call \"LOGICEM\".\"AUTOGESTION_DETALLE_RETENCION\"('{$DocEntry}');";
         $response =  $this->execQuerySap($query);
-        DocumentsLog::create([
-            'user_id' => auth()->user()->id,
-            'document_type' => 'details_retentions',
-            'request_body' => json_encode([
-                'CardCode' => $CardCode
-            ]),
-            'response_body' => json_encode($response->json()),
-            'response_code' => $response->status(),
-        ]);
         return $response->json();
     }
 
     // AUTOGESTION_VALIDA_PREV
     protected function validatePreview($CardCode)
     {
-        $query = "call \"LOGICEM\".\"AUTOGESTION_VALIDA_PREV\"('$CardCode');";
+        $query = "call \"LOGICEM\".\"AUTOGESTION_VALIDA_PREV\"('{$CardCode}');";
         $response =  $this->execQuerySap($query);
         DocumentsLog::create([
             'user_id' => auth()->user()->id,
