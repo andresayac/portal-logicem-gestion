@@ -173,9 +173,6 @@
             $('#filters').submit(function(event) {
                 event.preventDefault();
 
-                $('#loading-table').show();
-                $('#show-table').hide();
-                $('#btn-filter').addClass('disabled btn-progress');
 
                 let initial_date = $('#initial_date').val();
                 let final_date = $('#final_date').val();
@@ -184,6 +181,11 @@
                     alert('Por favor complete los campos requeridos');
                     return;
                 }
+
+                $('#loading-table').show();
+                $('#show-table').hide();
+                $('#btn-filter').addClass('disabled btn-progress');
+
 
                 // prepare url with params
                 let url = '<?= route('documentos.pagos-efectuados-json') ?>';

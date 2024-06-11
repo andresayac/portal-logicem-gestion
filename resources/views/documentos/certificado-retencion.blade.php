@@ -201,9 +201,7 @@
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
-                $('#loading-table').show();
-                $('#show-pdf').hide();
-                $('#btn-filter').addClass('disabled btn-progress');
+
 
                 let year_certificate = Number($('#year_certificate').val());
                 let type_certificate = $('#type_certificate').val();
@@ -216,6 +214,10 @@
                     alert('Por favor seleccione un tipo de certificado');
                     return;
                 }
+
+                $('#loading-table').show();
+                $('#show-pdf').hide();
+                $('#btn-filter').addClass('disabled btn-progress');
 
                 let year_current = new Date().getFullYear();
                 if (year_certificate < year_current - 1 && year_certificate > year_current) {
