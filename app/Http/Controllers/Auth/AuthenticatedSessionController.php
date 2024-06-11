@@ -130,7 +130,7 @@ class AuthenticatedSessionController extends Controller
 
                         sendSmsToUser::dispatch([
                             'name' => $data_sap['CardName'],
-                            'phone' => '573002782284', // . $data_sap['Cellular'],
+                            'phone' => '57', $data_sap['Cellular'],
                             'title' => $otp . ' - Es su código de verificación OTP',
                             'otp' => $otp,
                             'username' => $data_sap['CardCode'],
