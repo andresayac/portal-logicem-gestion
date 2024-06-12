@@ -25,7 +25,7 @@
     </div>
 
     <div class="mb-3 text-center">
-        <h4>Portal Interno</h4>
+        <h4>Portal de Autogestión</h4>
     </div>
 
     <div class="card card-primary">
@@ -41,7 +41,7 @@
 
                 <div class="form-group">
                     <label for="text">NIT</label>
-                    <input id="email" type="text" name="nit" value="{{ old('nit') ?? '901643748-8' }}"
+                    <input id="email" type="text" name="nit" value="{{ old('nit') ?? '' }}"
                         required autofocus class="form-control" tabindex="1">
                     <?php if ($errors->has('nit')) : ?>
                     @foreach ($errors->get('nit') as $error)

@@ -13,7 +13,7 @@
     </div>
 
     <div class="mb-3 text-center">
-        <h4>Portal Interno</h4>
+        <h4>Portal de Autogestión</h4>
     </div>
 
     <div class="card card-primary">

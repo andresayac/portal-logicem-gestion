@@ -6,7 +6,7 @@
             </a>
             <div class="text-center">
                 <h6>
-                    Portal Interno
+                    Portal de Autogestión
                 </h6>
             </div>
         </div>
