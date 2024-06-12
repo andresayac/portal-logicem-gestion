@@ -8,8 +8,8 @@
 
     <div class="row">
         <div class="col-md-12 col-lg-12 col-sm-12">
-            <div class="card" id="whatsapp-support">
-                <div class="card-header pb-1" style="min-height: unset;">
+            <div class="card" id="whatsapp-support" style="display: none;">
+                <div class="card-header pb-1" style="min-height: unset;" >
                     <p>Actualmente, tenemos un problema para generar tu solicitud. Por favor, contáctanos por WhatsApp
                         para solucionarlo.</p>
                 </div>
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 col-lg-12 col-sm-12" id="show-table">
+        <div class="col-md-12 col-lg-12 col-sm-12" id="show-table" style="display: none;">
             <div class="card">
                 <div class="card-header">
                     <h4>Facturas Registradas</h4>
