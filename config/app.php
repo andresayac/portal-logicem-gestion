@@ -208,6 +208,7 @@ return [
         'sms_active' => env('SMS_LABS_MOBILE_ACTIVE', false),
         'sms_user' => env('SMS_LABS_MOBILE_USER', ''),
         'sms_password' => env('SMS_LABS_MOBILE_TOKEN', ''),
+        'test_mode' => env('SMS_LABS_MOBILE_TEST_MODE', false),
     ],
 
 ];

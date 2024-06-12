@@ -45,6 +45,7 @@ class sendSmsToUser implements ShouldQueue
                     'https://api.labsmobile.com/json/send',
                     [
                         'message' => $this->data['message'],
+                        'test' => config('app.sms_labsmobile.test_mode') ? '1' : '0',
                         "recipient" => [
                             [
                                 "msisdn" => $this->data['phone']

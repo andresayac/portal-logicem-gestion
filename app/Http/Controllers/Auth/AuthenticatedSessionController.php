@@ -54,7 +54,7 @@ class AuthenticatedSessionController extends Controller
                     if ($email_sap == $email_address_confirm) {
 
                         // si existe ya un opt en session no volver a generar
-                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5) {
+                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5 && $request->session()->get('otp') != null) {
                             return view('auth.otp', [
                                 'nit' => $request->nit,
                                 'email' => $this->obscureEmail($data_sap['EmailAddress']),
@@ -105,7 +105,7 @@ class AuthenticatedSessionController extends Controller
                 } elseif ($method == 'sms') {
                     if ($cellular_sap == $cellular_confirm) {
 
-                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5) {
+                        if (now()->diffInMinutes($request->session()->get('otp_time_generate')) < 5 && $request->session()->get('otp') != null) {
                             return view('auth.otp', [
                                 'nit' => $request->nit,
                                 'email' => $this->obscureEmail($data_sap['EmailAddress']),
@@ -129,7 +129,7 @@ class AuthenticatedSessionController extends Controller
 
                         sendSmsToUser::dispatch([
                             'name' => $data_sap['CardName'],
-                            'phone' => '57', $data_sap['Cellular'],
+                            'phone' => '57' .  $data_sap['Cellular'],
                             'title' => $otp . ' - Es su código de verificación OTP',
                             'otp' => $otp,
                             'username' => $data_sap['CardCode'],
