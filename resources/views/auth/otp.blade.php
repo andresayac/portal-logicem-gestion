@@ -94,14 +94,15 @@
                             @enderror
                         </div>
                 @endif
-
-                <div class="form-group">
-                    <button type="button" id="generate-otp" class="btn btn-primary btn-lg btn-block" tabindex="3" onclick=""
-                        disabled>
-                        Generar nuevo OTP
-                    </button>
-                    <div id="otp-timer" class="text-center mt-2"></div>
-                </div>
+                @if (!$is_admin)
+                    <div class="form-group">
+                        <button type="button" id="generate-otp" class="btn btn-primary btn-lg btn-block" tabindex="3"
+                            onclick="" disabled>
+                            Generar nuevo OTP
+                        </button>
+                        <div id="otp-timer" class="text-center mt-2"></div>
+                    </div>
+                @endif
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="3">
@@ -124,42 +125,43 @@
                 $(this).find('button[type="submit"]').addClass('btn-progress');
             });
             document.addEventListener('DOMContentLoaded', function() {
-            const generateOtpButton = document.getElementById('generate-otp');
-            const otpTimer = document.getElementById('otp-timer');
+                const generateOtpButton = document.getElementById('generate-otp');
+                const otpTimer = document.getElementById('otp-timer');
 
-            const otpTimeGenerate = '{{ $otp_time_generate ?? '' }}';
-            const otpCooldown = 5 * 60; // 5 minutos en segundos
+                const otpTimeGenerate = '{{ $otp_time_generate ?? '' }}';
+                const otpCooldown = 5 * 60; // 5 minutos en segundos
 
-            if (otpTimeGenerate) {
-                const otpTimeGenerateDate = new Date(otpTimeGenerate).getTime() / 1000;
-                const currentTime = Math.floor(Date.now() / 1000);
-                const elapsedTime = currentTime - otpTimeGenerateDate;
+                if (otpTimeGenerate) {
+                    const otpTimeGenerateDate = new Date(otpTimeGenerate).getTime() / 1000;
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    const elapsedTime = currentTime - otpTimeGenerateDate;
 
-                if (elapsedTime >= otpCooldown) {
-                    generateOtpButton.removeAttribute('disabled');
-                    otpTimer.textContent = 'Puede generar un nuevo OTP';
-                } else {
-                    let remainingTime = otpCooldown - elapsedTime;
-                    const interval = setInterval(function() {
-                        const minutes = Math.floor(remainingTime / 60);
-                        const seconds = remainingTime % 60;
-                        otpTimer.textContent = `Nuevo OTP en ${minutes} min y ${seconds < 10 ? '0' : ''}${seconds} segundos para reintentar`;
-                        if (remainingTime <= 0) {
-                            clearInterval(interval);
-                            generateOtpButton.removeAttribute('disabled');
-                            otpTimer.textContent = 'Puede generar un nuevo OTP';
-                        } else {
-                            remainingTime--;
-                        }
-                    }, 1000);
+                    if (elapsedTime >= otpCooldown) {
+                        generateOtpButton.removeAttribute('disabled');
+                        otpTimer.textContent = 'Puede generar un nuevo OTP';
+                    } else {
+                        let remainingTime = otpCooldown - elapsedTime;
+                        const interval = setInterval(function() {
+                            const minutes = Math.floor(remainingTime / 60);
+                            const seconds = remainingTime % 60;
+                            otpTimer.textContent =
+                                `Nuevo OTP en ${minutes} min y ${seconds < 10 ? '0' : ''}${seconds} segundos para reintentar`;
+                            if (remainingTime <= 0) {
+                                clearInterval(interval);
+                                generateOtpButton.removeAttribute('disabled');
+                                otpTimer.textContent = 'Puede generar un nuevo OTP';
+                            } else {
+                                remainingTime--;
+                            }
+                        }, 1000);
+                    }
                 }
-            }
 
-            // funcion para actualizar la pagina y generar un nuevo OTP
-            generateOtpButton.addEventListener('click', function() {
-                window.location.reload();
+                // funcion para actualizar la pagina y generar un nuevo OTP
+                generateOtpButton.addEventListener('click', function() {
+                    window.location.reload();
+                });
             });
-        });
         </script>
     @endPushOnce
 
