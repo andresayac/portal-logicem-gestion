@@ -161,7 +161,7 @@
                         dt_users.clear().rows.add(data?.data).draw();
                     },
                     error: function(xhr, status) {
-                        dt_invoices.clear().draw();
+                        dt_users.clear().draw();
                         alert('Error comunicandonos con nuestra API, por favor intente mas tarde')
                     },
                     complete: function(xhr, status) {

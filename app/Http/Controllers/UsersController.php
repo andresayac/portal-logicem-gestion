@@ -24,15 +24,23 @@ class UsersController extends Controller
 
     public function getUserJson(Request $request)
     {
-        $users_sap = $this->getAllUserProvider();
-        // Save in session $users_sap
-        $request->session()->put('users_sap', $users_sap);
+        try {
+            $users_sap = $this->getAllUserProvider();
+            // Save in session $users_sap
+            $request->session()->put('users_sap', $users_sap);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Facturas registradas obtenidas correctamente',
-            'data' => $users_sap ?? []
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Usuarios registrados obtenidos correctamente',
+                'data' => $users_sap ?? []
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error al obtener los usuarios registrados',
+                'data' => []
+            ], 500);
+        }
     }
 
     public function impersonateUser(Request $request)
