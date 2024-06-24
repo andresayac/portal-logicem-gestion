@@ -3,10 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Helpers\Hana;
-use App\Models\ProvisionesLog;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Traits\SapApi;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +11,38 @@ class PortalController extends Controller
 {
     use SapApi;
 
+    protected $type_certificates = [
+        '' => '',
+        // '0' => 'AUTORETENCION',
+        '1' => 'ICA',
+        // '2' => 'IVA',
+        // '3' => 'TIMBRE',
+        '4' => 'FUENTE',
+        // '5' => 'CREE',
+        // '6' => 'SOBRETASA-ICA',
+    ];
+
+    protected $months = [
+        '1' => 'Enero',
+        '2' => 'Febrero',
+        '3' => 'Marzo',
+        '4' => 'Abril',
+        '5' => 'Mayo',
+        '6' => 'Junio',
+        '7' => 'Julio',
+        '8' => 'Agosto',
+        '9' => 'Septiembre',
+        '10' => 'Octubre',
+        '11' => 'Noviembre',
+        '12' => 'Diciembre',
+    ];
+
     public function certificadoRetencion()
     {
         $list_years =  $this->getListYears();
-        return view('documentos.certificado-retencion', compact('list_years'));
+        $type_certificates = $this->type_certificates;
+        $months = $this->months;
+        return view('documentos.certificado-retencion', compact('list_years', 'type_certificates', 'months'));
     }
 
     protected function getListYears()
@@ -47,6 +71,24 @@ class PortalController extends Controller
         if (!in_array($year_certificate, $list_years)) {
             return response()->json([
                 'message' => 'El año seleccionado no es valido'
+            ], 400);
+        }
+
+        if (!array_key_exists($type_certificate, $this->type_certificates)) {
+            return response()->json([
+                'message' => 'El tipo de certificado seleccionado no es valido'
+            ], 400);
+        }
+
+        if ($type_certificate == 4 && $year_certificate != Carbon::now()->year - 1) {
+            return response()->json([
+                'message' => 'El año seleccionado no es valido para el tipo de certificado seleccionado'
+            ], 400);
+        }
+
+        if ($type_certificate == 1 && !in_array($year_certificate, $list_years)) {
+            return response()->json([
+                'message' => 'El año seleccionado no es valido para el tipo de certificado seleccionado'
             ], 400);
         }
 
@@ -119,7 +161,7 @@ class PortalController extends Controller
             }
 
             foreach ($purchaseInvoices as &$purchaseInvoice) {
-               $purchaseInvoice['details'] = $this->getDetailsRetentions($purchaseInvoice['DocEntry']);
+                $purchaseInvoice['details'] = $this->getDetailsRetentions($purchaseInvoice['DocEntry']);
             }
 
             return response()->json([

@@ -31,32 +31,44 @@
                     <form id="filters" class="row">
                         <div class='col-6'>
                             <div class="form-group">
+                                <label>Tipo certificado <code>*</code></label>
+                                <select class="form-control" id="type_certificate">
+                                    @foreach ($type_certificates as $key => $type_certificate)
+                                        <option value="{{ $key }}">{{ $type_certificate }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class='col-6' id="year-container" style="display:none;">
+                            <div class="form-group">
                                 <label>Año de certificado <code>*</code></label>
-                                <select class="form-control" id="year_certificate">
+                                <select class="form-control" id="year_certificate" disabled>
                                     @foreach ($list_years as $year)
                                         <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6'>
+                        <div class='col-6' id="month-range" style="display:none;">
                             <div class="form-group">
-                                <label>Tipo certificado <code>*</code></label>
-                                <select class="form-control" id="type_certificate">
-                                    <option value="" selected></option>
-                                    <option value="0">AUTORETENCION</option>
-                                    <option value="1">ICA</option>
-                                    <option value="2">IVA</option>
-                                    <option value="3">TIMBRE</option>
-                                    <option value="4">FUENTE</option>
-                                    <option value="5">CREE</option>
-                                    <option value="6">SOBRETASA-ICA</option>
-
+                                <label>Mes Desde <code>*</code></label>
+                                <select class="form-control" id="month_from">
+                                    @foreach ($months as $key => $month)
+                                        <option value="{{ $key }}">{{ $month }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Mes Hasta <code>*</code></label>
+                                <select class="form-control" id="month_to">
+                                    @foreach ($months as $key => $month)
+                                        <option value="{{ $key }}">{{ $month }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class='col-12'>
-                            <div class=" mt-3">
+                            <div class="mt-3">
                                 <div class="col-12 text-center">
                                     <button id="btn-filter" type="submit" href="#"
                                         class="btn btn-primary btn-icon icon-left"><i
@@ -116,9 +128,6 @@
         </div>
 
     </div>
-
-
-
 
     @pushOnce('css')
         <link href="//cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -212,15 +221,46 @@
             $(document).ready(function() {
                 $("#whatsapp-support").hide();
                 $('#show-pdf').hide();
-            });
+                $('#btn-filter').prop('disabled', true);
 
+                // Controlar el tipo de certificado seleccionado
+                $('#type_certificate').change(function() {
+                    let type_certificate = $(this).val();
+                    let current_year = new Date().getFullYear();
+
+                    $('#year-container').show();
+
+                    if (type_certificate == '4') { // FUENTE
+                        $('#year_certificate').prop('disabled', false).html('<option value="' + (current_year -
+                            1) + '">' + (current_year - 1) + '</option>');
+                        $('#month-range').hide();
+                        $('#show-pdf').hide();
+                        $('#btn-filter').prop('disabled', false);
+                    } else if (type_certificate == '1') { // ICA
+                        $('#year_certificate').prop('disabled', false).html('<option value="' + current_year +
+                            '">' + current_year + '</option><option value="' + (current_year - 1) + '">' + (
+                                current_year - 1) + '</option>');
+                        $('#month-range').show();
+                        $('#show-pdf').hide();
+                        $('#btn-filter').prop('disabled', false);
+                    } else {
+                        //year_certificate
+                        $('#show-pdf').hide();
+                        $('#year_certificate').prop('disabled', true).html('');
+                        $('#month-range').hide();
+                        // btn-filter disabled
+                        $('#btn-filter').prop('disabled', true);
+                    }
+                });
+            });
 
             $('#filters').submit(function(event) {
                 event.preventDefault();
 
-
                 let year_certificate = Number($('#year_certificate').val());
                 let type_certificate = $('#type_certificate').val();
+                let month_from = $('#month_from').val();
+                let month_to = $('#month_to').val();
 
                 if (!year_certificate || !type_certificate) {
                     alert('Por favor complete los campos requeridos');
@@ -236,8 +276,10 @@
                 $('#btn-filter').addClass('disabled btn-progress');
 
                 let year_current = new Date().getFullYear();
-                if (year_certificate < year_current - 1 && year_certificate > year_current) {
-                    alert('El año del certificado debe estar entre ' + (year_current - 1) + ' y ' + (year_current));
+                if (year_certificate < year_current - 1 || year_certificate > year_current) {
+                    alert('El año del certificado debe estar entre ' + (year_current - 1) + ' y ' + year_current);
+                    $('#btn-filter').removeClass('disabled btn-progress');
+                    $('#loading-table').hide();
                     return;
                 }
 
@@ -245,6 +287,9 @@
                 let url = '<?= route('documentos.certificado-retenciones-pdf') ?>';
                 url += '?year_certificate=' + year_certificate;
                 url += '&type_certificate=' + type_certificate;
+                if (type_certificate == '1') { // ICA
+                    url += '&month_from=' + month_from + '&month_to=' + month_to;
+                }
 
                 $.ajax({
                     url: url,
@@ -282,7 +327,7 @@
                         alert(message)
                     },
                     complete: function(xhr, status) {
-
+                        $('#loading-table').hide();
                     }
                 });
 
