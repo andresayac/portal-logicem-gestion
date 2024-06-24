@@ -59,6 +59,9 @@ class PortalController extends Controller
     {
         $year_certificate = $request->year_certificate;
         $type_certificate = $request->type_certificate;
+        $month_to = $request->month_to;
+        $date_init =  Carbon::createFromDate($year_certificate, 1, 1)->toDateString();
+        $date_end = Carbon::createFromDate($year_certificate, $month_to, 1)->endOfMonth()->toDateString();
 
         if ($year_certificate == null || $type_certificate == null) {
             return response()->json([
@@ -107,7 +110,7 @@ class PortalController extends Controller
             }
 
             $this->loginApiPdf();
-            $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate, $type_certificate);
+            $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate,$date_init, $date_end, $type_certificate);
             // return base64 pdf
 
             if (empty($data)) {

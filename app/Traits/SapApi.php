@@ -232,19 +232,40 @@ trait SapApi
     {
     }
 
-    protected function getGenerateCertificate($CardCode = '', $yearCertificate = '', $typeCertificate = '')
+    protected function getIcaCertificate($CardCode = '', $dateInit = '', $dateEnd = '')
     {
-        $url = $this->settingsSap['SAP_PDF_ENDPOINT'] . "/rs/v1/ExportPDFData?DocCode=RCRI0040";
-        $data = [
+        return [
             [
                 "name" => "CardCode",
                 "type" => "xsd:string",
                 "value" => [[$CardCode]]
             ],
             [
-                "name" => "tipo_reten",
+                "name" => "fechaini",
                 "type" => "xsd:string",
-                "value" => [[$typeCertificate]]
+                "value" => [[$dateInit]]
+            ],
+            [
+                "name" => "fechafin",
+                "type" => "xsd:string",
+                "value" => [[$dateEnd]]
+            ],
+            [
+                "name" => "Schema@",
+                "type" => "xsd:string",
+                "value" => [["LOGICEM"]]
+            ]
+
+        ];
+    }
+
+    protected function getReteFuenteCertificate($CardCode = '', $yearCertificate = '')
+    {
+        return [
+            [
+                "name" => "CardCode",
+                "type" => "xsd:string",
+                "value" => [[$CardCode]]
             ],
             [
                 "name" => "periodo",
@@ -254,9 +275,27 @@ trait SapApi
             [
                 "name" => "Schema@",
                 "type" => "xsd:string",
-                "value" => [[$this->settingsSap['SAP_PDF_COMPANY_DB']]]
+                "value" => [["LOGICEM"]]
             ]
+
         ];
+    }
+
+    protected function getGenerateCertificate($CardCode = '', $yearCertificate = '',  $dateInit = '', $dateEnd = '', $typeCertificate = '')
+    {
+
+        $body_certificate = [
+            1 => $this->getIcaCertificate($CardCode, $dateInit, $dateEnd),
+            4 => $this->getReteFuenteCertificate($CardCode, $yearCertificate)
+        ];
+
+        $code_certificate = [
+            1 => 'RCRI0041',
+            4 => 'RCRI0042'
+        ];
+
+        $url = $this->settingsSap['SAP_PDF_ENDPOINT'] . "/rs/v1/ExportPDFData?DocCode=" . $code_certificate[$typeCertificate];
+        $data = $body_certificate[$typeCertificate];
 
         $response = $this->initializeAxios()->withHeaders(['Cookie' => $this->cookiesSapPdf])->post($url, $data);
         DocumentsLog::create([

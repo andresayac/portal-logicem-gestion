@@ -49,17 +49,19 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="month-range" style="display:none;">
+                        <div class='col-6' id="year-container" style="display:none;">
                             <div class="form-group">
-                                <label>Mes Desde <code>*</code></label>
-                                <select class="form-control" id="month_from">
-                                    @foreach ($months as $key => $month)
-                                        <option value="{{ $key }}">{{ $month }}</option>
+                                <label>Año de certificado <code>*</code></label>
+                                <select class="form-control" id="year_certificate" disabled>
+                                    @foreach ($list_years as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
+                        <div class='col-6' id="month-range" style="display:none;">
                             <div class="form-group">
-                                <label>Mes Hasta <code>*</code></label>
+                                <label>De Enero hasta <code>*</code></label>
                                 <select class="form-control" id="month_to">
                                     @foreach ($months as $key => $month)
                                         <option value="{{ $key }}">{{ $month }}</option>
@@ -259,7 +261,6 @@
 
                 let year_certificate = Number($('#year_certificate').val());
                 let type_certificate = $('#type_certificate').val();
-                let month_from = $('#month_from').val();
                 let month_to = $('#month_to').val();
 
                 if (!year_certificate || !type_certificate) {
@@ -288,7 +289,7 @@
                 url += '?year_certificate=' + year_certificate;
                 url += '&type_certificate=' + type_certificate;
                 if (type_certificate == '1') { // ICA
-                    url += '&month_from=' + month_from + '&month_to=' + month_to;
+                    url += '&month_to=' + month_to;
                 }
 
                 $.ajax({
@@ -313,7 +314,9 @@
                         } else {
                             $('#whatsapp-support').show();
                             $('#show-pdf').hide();
+                            $('#btn-filter').removeClass('disabled btn-progress');
                             alert('Error generando el certificado, por favor intente mas tarde')
+
                         }
                     },
                     error: function(xhr, status) {
