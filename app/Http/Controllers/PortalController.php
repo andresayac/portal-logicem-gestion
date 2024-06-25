@@ -59,8 +59,9 @@ class PortalController extends Controller
     {
         $year_certificate = $request->year_certificate;
         $type_certificate = $request->type_certificate;
+        $month_from = $request->month_from;
         $month_to = $request->month_to;
-        $date_init =  Carbon::createFromDate($year_certificate, $month_to, 1)->toDateString();
+        $date_init =  Carbon::createFromDate($year_certificate, $month_from, 1)->toDateString();
         $date_end = Carbon::createFromDate($year_certificate, $month_to, 1)->endOfMonth()->toDateString();
 
         // validar si date_init aun no ha pasado

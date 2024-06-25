@@ -49,19 +49,20 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="year-container" style="display:none;">
+                        <div class='col-6' id="month-range-from" style="display:none;">
                             <div class="form-group">
-                                <label>Año de certificado <code>*</code></label>
-                                <select class="form-control" id="year_certificate" disabled>
-                                    @foreach ($list_years as $year)
-                                        <option value="{{ $year }}">{{ $year }}</option>
+                                <label>Mes Desde <code>*</code></label>
+                                <select class="form-control" id="month_from">
+                                    @foreach ($months as $key => $month)
+                                        <option value="{{ $key }}">{{ $month }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="month-range" style="display:none;">
+                        <div class='col-6' id="month-range-to" style="display:none;">
+
                             <div class="form-group">
-                                <label>Mes de certificado <code>*</code></label>
+                                <label>Mes Hasta <code>*</code></label>
                                 <select class="form-control" id="month_to">
                                     @foreach ($months as $key => $month)
                                         <option value="{{ $key }}">{{ $month }}</option>
@@ -235,21 +236,24 @@
                     if (type_certificate == '4') { // FUENTE
                         $('#year_certificate').prop('disabled', false).html('<option value="' + (current_year -
                             1) + '">' + (current_year - 1) + '</option>');
-                        $('#month-range').hide();
+                        $('#month-range-from').hide();
+                        $('#month-range-to').hide();
                         $('#show-pdf').hide();
                         $('#btn-filter').prop('disabled', false);
                     } else if (type_certificate == '1') { // ICA
                         $('#year_certificate').prop('disabled', false).html('<option value="' + current_year +
                             '">' + current_year + '</option><option value="' + (current_year - 1) + '">' + (
                                 current_year - 1) + '</option>');
-                        $('#month-range').show();
+                        $('#month-range-from').show();
+                        $('#month-range-to').show();
                         $('#show-pdf').hide();
                         $('#btn-filter').prop('disabled', false);
                     } else {
                         //year_certificate
                         $('#show-pdf').hide();
                         $('#year_certificate').prop('disabled', true).html('');
-                        $('#month-range').hide();
+                        $('#month-range-from').hide();
+                        $('#month-range-to').hide();
                         // btn-filter disabled
                         $('#btn-filter').prop('disabled', true);
                     }
@@ -261,6 +265,7 @@
 
                 let year_certificate = Number($('#year_certificate').val());
                 let type_certificate = $('#type_certificate').val();
+                let month_from = $('#month_from').val();
                 let month_to = $('#month_to').val();
 
                 if (!year_certificate || !type_certificate) {
@@ -289,7 +294,7 @@
                 url += '?year_certificate=' + year_certificate;
                 url += '&type_certificate=' + type_certificate;
                 if (type_certificate == '1') { // ICA
-                    url += '&month_to=' + month_to;
+                    url += '&month_from=' + month_from + '&month_to=' + month_to;
                 }
 
                 $.ajax({
