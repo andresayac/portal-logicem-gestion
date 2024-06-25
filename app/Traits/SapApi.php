@@ -301,11 +301,7 @@ trait SapApi
         DocumentsLog::create([
             'user_id' => auth()->user()->id,
             'document_type' => 'generate_certificate',
-            'request_body' => json_encode([
-                'CardCode' => $CardCode,
-                'yearCertificate' => $yearCertificate,
-                'typeCertificate' => $typeCertificate
-            ]),
+            'request_body' => json_encode($data),
             'response_body' => json_encode($response->body()),
             'response_message' => $response->status(),
             'response_code' => $response->status(),
