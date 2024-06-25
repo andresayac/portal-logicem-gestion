@@ -60,8 +60,15 @@ class PortalController extends Controller
         $year_certificate = $request->year_certificate;
         $type_certificate = $request->type_certificate;
         $month_to = $request->month_to;
-        $date_init =  Carbon::createFromDate($year_certificate, 1, 1)->toDateString();
+        $date_init =  Carbon::createFromDate($year_certificate, $month_to, 1)->toDateString();
         $date_end = Carbon::createFromDate($year_certificate, $month_to, 1)->endOfMonth()->toDateString();
+
+        // validar si date_init aun no ha pasado
+        if (Carbon::now()->toDateString() < $date_init) {
+            return response()->json([
+                'message' => 'El certificado solo se puede generar a partir del mes actual'
+            ], 400);
+        }
 
         if ($year_certificate == null || $type_certificate == null) {
             return response()->json([

@@ -61,7 +61,7 @@
                         </div>
                         <div class='col-6' id="month-range" style="display:none;">
                             <div class="form-group">
-                                <label>De Enero hasta <code>*</code></label>
+                                <label>Mes de certificado <code>*</code></label>
                                 <select class="form-control" id="month_to">
                                     @foreach ($months as $key => $month)
                                         <option value="{{ $key }}">{{ $month }}</option>
