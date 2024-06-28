@@ -27,7 +27,7 @@
             <form method="POST" id="form-login" action="{{ route('otp') }}">
                 @csrf
 
-                @if (!$is_valid_phone && !$is_valid_email)
+                @if (!$is_valid_phone ?? true && !$is_valid_email)
                     <div class="alert alert-danger">
                         No hay ningún método disponible para el inicio de sesión.
                     </div>
@@ -38,7 +38,7 @@
                             @if ($is_valid_email)
                                 <option value="email">Correo Electrónico</option>
                             @endif
-                            @if ($is_valid_phone)
+                            @if ($is_valid_phone ?? false)
                                 <option value="sms">SMS</option>
                             @endif
                         </select>
@@ -103,7 +103,7 @@
                     <span class="small">
                         Si usted no reconoce el correo electrónico o teléfono que muestra el sistema, favor de
                         comunicarse con la empresa en el siguiente enlace
-                        <a href="https://wa.me/573058363083?text=Hola" target="_blank" rel="noopener noreferrer" class="text-success text-bold">
+                        <a href="https://wa.me/{{ config('app.whatsapp_number')}}?text=Hola" target="_blank" rel="noopener noreferrer" class="text-success text-bold">
                             <i class="fab fa-whatsapp"></i> Whatsapp
                         </a>
                     </span>

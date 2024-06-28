@@ -210,5 +210,6 @@ return [
         'sms_password' => env('SMS_LABS_MOBILE_TOKEN', ''),
         'test_mode' => env('SMS_LABS_MOBILE_TEST_MODE', false),
     ],
+    'whatsapp_number' => env('WHATSAPP_NUMBER', ''),
 
 ];

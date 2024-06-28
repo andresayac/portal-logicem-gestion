@@ -178,7 +178,7 @@ class AuthenticatedSessionController extends Controller
     public function check(Request $request)
     {
 
-        return view('auth.check', ['nit' => '', 'success' => false]);
+        return view('auth.check', ['nit' => '', 'success' => false, 'card_name' => '', 'email_address' => '', 'cellular' => '', 'is_valid_phone' => false, 'is_valid_email' => false]);
     }
 
     public function checkAuth(Request $request)
@@ -222,14 +222,16 @@ class AuthenticatedSessionController extends Controller
                         'card_name' => $response_sap['value'][0]['CardName'] ?? null,
                         'email_address' =>  $this->obscureEmail($response_sap['value'][0]['EmailAddress']) ?? null,
                         'cellular' => $this->obscureMobile($response_sap['value'][0]['Cellular']) ?? null,
-                        'is_valid_phone' => config('app.sms_labsmobile.sms_active') === false ? false : $this->validatePhone($response_sap['value'][0]['Cellular']),
+                        'is_valid_phone' => config('app.sms_labsmobile.sms_active') === false ? false : $this->validatePhone($response_sap['value'][0]['Cellular']) ?? false,
                         'is_valid_email' => $this->validateMail($response_sap['value'][0]['EmailAddress'])
                     ]);
                 }
             }
 
-
-            return view('auth.check', ['nit' => $request->nit, 'success' => false]);
+            // return login
+            return redirect()->route('login')->withErrors([
+                'error' => 'El NIT no se encuentra registrado en nuestros registros.',
+            ]);
         } catch (\Exception $e) {
             return view('auth.check', ['nit' => $request->nit, 'success' => false]);
         }

@@ -12,7 +12,7 @@
         @foreach ($errors->get('error') as $error)
             <div class="alert alert-danger mt-2">{{ $error }}</div>
             <div class="container m-1 text-center">
-                <a href="https://wa.me/573058363083?text=Hola" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/{{ config('app.whatsapp_number') }}?text=Hola" target="_blank" rel="noopener noreferrer"
                     class="btn btn-success">
                     <i class="fab fa-whatsapp"></i> Contacto via Whatsapp
                 </a>
