@@ -67,7 +67,7 @@ class PortalController extends Controller
         // validar si date_init aun no ha pasado
         if (Carbon::now()->toDateString() < $date_init) {
             return response()->json([
-                'message' => 'El certificado solo se puede generar a partir del mes actual'
+                'message' => 'El certificado solo se puede generar maximo a partir del mes actual.'
             ], 400);
         }
 
@@ -103,6 +103,21 @@ class PortalController extends Controller
             ], 400);
         }
 
+
+        // si type_certificate = 1 se debe validar si es el año actual no se dejara pasar si el mes es mayor al mes actual
+        if ($type_certificate == 1 && $year_certificate == Carbon::now()->year && $month_from > Carbon::now()->month) {
+            return response()->json([
+                'message' => 'El mes seleccionado no es valido para el año actual'
+            ], 400);
+        }
+
+        // si type_certificate = 1 si month_from es menor month_to no se dejara pasar
+        if ($type_certificate == 1 && $month_from > $month_to) {
+            return response()->json([
+                'message' => 'El mes inicial no puede ser mayor al mes final'
+            ], 400);
+        }
+
         try {
             $this->login();
 
@@ -118,7 +133,7 @@ class PortalController extends Controller
             }
 
             $this->loginApiPdf();
-            $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate,$date_init, $date_end, $type_certificate);
+            $data = $this->getGenerateCertificate(Auth::user()->username, $year_certificate, $date_init, $date_end, $type_certificate);
             // return base64 pdf
 
             if (empty($data)) {
