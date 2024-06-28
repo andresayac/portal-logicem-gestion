@@ -99,9 +99,21 @@
                     </div>
                 @endif
 
+                <div class="container mt-2 mb-4 text-center">
+                    <span class="small">
+                        Si usted no reconoce el correo electrónico o teléfono que muestra el sistema, favor de
+                        comunicarse con la empresa en el siguiente enlace
+                        <a href="https://wa.me/573058363083?text=Hola" target="_blank" rel="noopener noreferrer" class="text-success text-bold">
+                            <i class="fab fa-whatsapp"></i> Whatsapp
+                        </a>
+                    </span>
+                </div>
+
+
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="3">
-                        Iniciar sesión
+                        Verificar
                     </button>
                 </div>
             </form>

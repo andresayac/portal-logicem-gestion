@@ -205,6 +205,11 @@
                 font-weight: bold;
                 color: inherit;
             }
+
+
+            select option:disabled {
+                color: #ff8e63;
+            }
         </style>
     @endPushOnce
 
@@ -257,6 +262,89 @@
                         // btn-filter disabled
                         $('#btn-filter').prop('disabled', true);
                     }
+                });
+
+
+                let year_certificate = $('#year_certificate').val();
+                let current_year = new Date().getFullYear();
+                let current_month = new Date().getMonth() + 1;
+                let month_from = $('#month_from').val();
+                let month_to = $('#month_to').val();
+
+                const validateMonths = (year_certificate, current_year, month_from, month_to, current_month) => {
+                    if (year_certificate == current_year) {
+                        if (month_from > current_month) {
+                            $('#month_from').val(current_month);
+                        }
+
+                        if (month_to > current_month) {
+                            $('#month_to').val(current_month);
+                        }
+
+                        $('#month_from option').each(function() {
+                            if ($(this).val() > current_month) {
+                                $(this).prop('disabled', true);
+                            } else {
+                                $(this).prop('disabled', false);
+                            }
+                        });
+
+                        $('#month_to option').each(function() {
+                            if ($(this).val() > current_month) {
+                                $(this).prop('disabled', true);
+                            } else {
+                                $(this).prop('disabled', false);
+                            }
+                        });
+                    } else {
+                        $('#month_from option').each(function() {
+                            $(this).prop('disabled', false);
+                        });
+
+                        $('#month_to option').each(function() {
+                            $(this).prop('disabled', false);
+                        });
+                    }
+                }
+
+
+                validateMonths(year_certificate, current_year, month_from, month_to, current_month);
+
+
+                $('#month_from').change(function() {
+                    let month_from = parseInt($(this).val());
+                    let current_month = new Date().getMonth() + 1;
+                    let year_certificate = $('#year_certificate').val();
+                    let current_year = new Date().getFullYear();
+
+                    // aqui se debe
+                    $('#month_to option').each(function() {
+                        if ($(this).val() < month_from) {
+                            $(this).prop('disabled', true);
+                        } else if ($(this).val() > current_month && year_certificate == current_year) {
+                            $(this).prop('disabled', true);
+                        } else {
+                            $(this).prop('disabled', false);
+                        }
+                    });
+
+                    let month_to = $('#month_to').val();
+
+                    if (month_to < month_from) {
+                        $('#month_to').val(month_from);
+                    }
+
+                });
+
+                $('#year_certificate').change(function() {
+                    let year_certificate = $(this).val();
+                    let current_year = new Date().getFullYear();
+                    let type_certificate = $('#type_certificate').val();
+                    let current_month = new Date().getMonth() + 1;
+                    let month_from = $('#month_from').val();
+                    let month_to = $('#month_to').val();
+
+                    validateMonths(year_certificate, current_year, month_from, month_to, current_month);
                 });
             });
 
