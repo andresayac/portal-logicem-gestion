@@ -29,7 +29,7 @@
                 </div>
                 <div class="card-body pt-1">
                     <form id="filters" class="row">
-                        <div class='col-6'>
+                        <div class='col-lg-6 col-md-12'>
                             <div class="form-group">
                                 <label>Tipo certificado <code>*</code></label>
                                 <select class="form-control" id="type_certificate">
@@ -39,7 +39,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="year-container" style="display:none;">
+                        <div class='col-lg-6 col-md-12' id="year-container" style="display:none;">
                             <div class="form-group">
                                 <label>Año de certificado <code>*</code></label>
                                 <select class="form-control" id="year_certificate" disabled>
@@ -49,7 +49,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="month-range-from" style="display:none;">
+                        <div class='col-lg-6 col-md-12' id="month-range-from" style="display:none;">
                             <div class="form-group">
                                 <label>Mes Desde <code>*</code></label>
                                 <select class="form-control" id="month_from">
@@ -59,7 +59,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='col-6' id="month-range-to" style="display:none;">
+                        <div class='col-lg-6 col-md-12' id="month-range-to" style="display:none;">
 
                             <div class="form-group">
                                 <label>Mes Hasta <code>*</code></label>
@@ -85,7 +85,7 @@
         </div>
 
         <div id="is-generated" class="d-none">
-            <div class="col-md-6 col-lg-6 col-sm-12 d-flex justify-content-center">
+            <div class="col-md-12 col-lg-6 col-sm-12 d-flex justify-content-center">
                 <div class="card w-100">
                     <div class="card-body d-flex align-items-center">
                         <div class="row">

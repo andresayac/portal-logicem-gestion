@@ -29,14 +29,14 @@
                 </div>
                 <div class="card-body pt-1">
                     <form id="filters" class="row">
-                        <div class='col-6'>
+                        <div class='col-lg-6 col-md-12'>
                             <div class="form-group">
                                 <label>Fecha de inicio <code>*</code></label>
                                 <input type="text" class="form-control" id="initial_date" name="initial_date"
                                     required>
                             </div>
                         </div>
-                        <div class='col-6'>
+                        <div class='col-lg-6 col-md-12'>
                             <div class="form-group">
                                 <label>Fecha de Final <code>*</code></label>
                                 <input type="text" class="form-control" id="final_date" name="final_date" required>
